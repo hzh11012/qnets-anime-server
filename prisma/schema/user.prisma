@@ -1,0 +1,31 @@
+model User {
+    id       String  @id @default(ulid())
+    phone    String  @unique @db.VarChar(11)
+    nickname String  @db.VarChar(25)
+    avatar   String?
+    roles    Role[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Role {
+    id          String       @id @default(ulid())
+    name        String       @db.VarChar(10)
+    role        String       @unique
+    permissions Permission[]
+    users       User[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Permission {
+    id         String @id @default(ulid())
+    name       String @db.VarChar(10)
+    permission String @unique
+    roles      Role[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

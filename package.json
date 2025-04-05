@@ -1,0 +1,53 @@
+{
+    "name": "qnets-anime-server",
+    "version": "1.0.0",
+    "author": "Qnets",
+    "description": "Qnets Anime 服务端",
+    "main": "app.js",
+    "scripts": {
+        "dev": "nodemon app.js",
+        "lint": "eslint --fix .",
+        "lint:fix": "prettier --write ."
+    },
+    "prisma": {
+        "seed": "npx node prisma/seed.js"
+    },
+    "keywords": [
+        "qnets-anime-server",
+        "koa2 prisma",
+        "qnets-anime"
+    ],
+    "license": "MIT",
+    "devDependencies": {
+        "eslint": "^9.24.0",
+        "eslint-config-prettier": "^10.1.1",
+        "nodemon": "^3.1.9",
+        "prettier": "^3.5.3",
+        "prisma": "^6.5.0"
+    },
+    "dependencies": {
+        "@koa/cors": "^5.0.0",
+        "@prisma/client": "^6.5.0",
+        "dotenv": "^16.4.7",
+        "ioredis": "^5.6.0",
+        "jsonwebtoken": "^9.0.2",
+        "koa": "^2.16.0",
+        "koa-bodyparser": "^4.4.1",
+        "koa-onerror": "^5.0.1",
+        "koa-ratelimit": "^5.1.0",
+        "koa-router": "^13.0.1",
+        "module-alias": "^2.2.3",
+        "require-directory": "^2.1.1",
+        "zod": "^3.24.2"
+    },
+    "_moduleAliases": {
+        "@": ".",
+        "@app": "app",
+        "@core": "core",
+        "@middleware": "middleware",
+        "@api": "app/api",
+        "@dao": "app/dao",
+        "@service": "app/service",
+        "@validators": "app/validators"
+    }
+}
