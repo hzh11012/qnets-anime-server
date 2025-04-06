@@ -5,12 +5,7 @@ const prisma = require('@core/prisma');
 async function main() {
     // 创建默认权限
     await prisma.permission.createMany({
-        data: [
-            {name: '查看用户', permission: 'user:read'},
-            {name: '创建用户', permission: 'user:create'},
-            {name: '编辑用户', permission: 'user:edit'},
-            {name: '删除用户', permission: 'user:delete'}
-        ],
+        data: [{name: '所有权限', permission: 'admin:all'}],
         skipDuplicates: true
     });
 
@@ -22,12 +17,7 @@ async function main() {
             name: '管理员',
             role: 'admin',
             permissions: {
-                connect: [
-                    {permission: 'user:read'},
-                    {permission: 'user:create'},
-                    {permission: 'user:edit'},
-                    {permission: 'user:delete'}
-                ]
+                connect: [{permission: 'admin:all'}]
             }
         }
     });

@@ -11,7 +11,10 @@ class InitManager {
         // 获取根目录下的routes目录
         const routeDirectory = `${process.cwd()}/app/api`;
         // 迭代routes目录下的每个文件
-        requireDirectory(module, routeDirectory, {
+        requireDirectory(module, routeDirectory + '/client', {
+            visit: whenLoadModule
+        });
+        requireDirectory(module, routeDirectory + '/server', {
             visit: whenLoadModule
         });
 
