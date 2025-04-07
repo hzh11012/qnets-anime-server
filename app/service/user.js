@@ -2,10 +2,11 @@ const UserDao = require('@dao/user');
 
 class UserService {
     static async getInfo(phone) {
-        const [err, user] = await UserDao.findByPhone(phone);
-        if (err) throw err;
-
-        return user;
+        try {
+            return await UserDao.findByPhone(phone);
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

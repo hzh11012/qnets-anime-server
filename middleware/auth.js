@@ -4,6 +4,8 @@ const {got} = require('got-cjs');
 const redis = require('@core/redis');
 const {parseTime} = require('@core/utils');
 
+const PERMISSION_CACHE_TTL = parseTime('1d') / 1000;
+
 const verify = async token => {
     try {
         const {data} = await got(process.env.SSO_BASE_URL + '/api/sso/verify', {
@@ -41,19 +43,16 @@ const verify = async token => {
         await redis.set(
             `permission:${phone}`,
             JSON.stringify(permissions),
-            parseTime('1d') / 1000
+            PERMISSION_CACHE_TTL
         );
 
         return [permissions, phone];
     } catch (err) {
-        if (err instanceof HttpException) throw err;
         if (err.response?.body) {
             const {code, msg} = JSON.parse(err.response.body);
-            if (code && msg) {
-                throw new HttpException(msg, code);
-            }
+            if (code && msg) throw new HttpException(msg, code);
         }
-        throw new HttpException();
+        throw err;
     }
 };
 
@@ -74,10 +73,9 @@ const auth = requiredPermissions => {
                 throw new AuthFailed('权限不足');
 
             ctx.auth = {phone};
+            await next();
         } catch (err) {
             throw err;
-        } finally {
-            await next();
         }
     };
 };

@@ -1,6 +1,6 @@
 class HttpException extends Error {
     constructor(msg = '服务端异常', code = 500) {
-        super();
+        super(msg);
         Object.assign(this, {msg, code});
     }
 }

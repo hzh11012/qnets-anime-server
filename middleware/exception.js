@@ -17,9 +17,10 @@ module.exports = {
             ctx.status = err.code;
         } else {
             // 未知异常
+            console.error(err);
             ctx.body = {
                 ...baseResponse,
-                msg: err.errors?.[0]?.message || err.message,
+                msg: '服务端异常',
                 code: 500
             };
             ctx.status = 500;
