@@ -1,12 +1,5 @@
 const random = length => {
-    const chars = '0123456789';
-    let result = '';
-
-    while (length > 0) {
-        length--;
-        result += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return result;
+    return Array.from({length}, () => Math.floor(Math.random() * 10)).join('');
 };
 
 const colorRgbToHex = rgbStr => {
@@ -15,28 +8,25 @@ const colorRgbToHex = rgbStr => {
         /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6}|[0-9a-fA-f]{8}|[0-9a-fA-f]{6}[0-9]{2})$/;
     if (reg.test(rgbStr)) {
         return rgbStr;
-    } else {
-        const rgbArray = rgbStr
-            .replace(/(?:\(|\)|rgba|rgb|RGBA|RGB)*/g, '')
-            .split(',');
-        let strHex = '#';
-        for (let i = 0; i < rgbArray.length; i++) {
-            if (i !== 3) {
-                if (rgbArray[i] == '0') {
-                    strHex += '00';
-                } else {
-                    let newItem = Number(rgbArray[i]).toString(16);
-                    if (newItem.length < 2) {
-                        newItem = '0' + newItem;
-                    }
-                    strHex += newItem;
-                }
-            } else {
-                strHex += rgbArray[i] == '0' ? '' : Number(rgbArray[i]) * 100;
-            }
-        }
-        return strHex;
     }
+    // 提取RGB值
+    const rgbValues = rgbStr
+        .replace(/(?:\(|\)|rgba|rgb|RGBA|RGB)*/g, '')
+        .split(',')
+        .map(Number);
+
+    // 转换为十六进制
+    const hex = rgbValues
+        .slice(0, 3)
+        .map(value => {
+            const hex = value.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        })
+        .join('');
+
+    // 如果有透明度，添加透明度值
+    const alpha = rgbValues[3];
+    return alpha ? `#${hex}${Math.round(alpha * 100)}` : `#${hex}`;
 };
 
 const secondsToHms = seconds => {
