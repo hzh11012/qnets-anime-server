@@ -1,0 +1,201 @@
+/// 动漫模型
+model Anime {
+    /// 动漫ID
+    id          String  @id @default(ulid())
+    /// 动漫名称
+    name        String  @db.VarChar(50)
+    /// 动漫简介
+    description String  @db.VarChar(1000)
+    /// 动漫封面
+    coverUrl    String
+    /// 动漫横幅
+    bannerUrl   String
+    /// 动漫状态 0-即将上线 1-连载中 2-已完结
+    status      Int     @db.UnsignedTinyInt
+    /// 动漫类型 0-剧场版 1-日番 2-美番 3-国番 4-里番
+    type        Int     @db.UnsignedTinyInt
+    /// 动漫导演
+    director    String? @db.VarChar(25)
+    /// 动漫声优
+    cv          String?
+    /// 动漫发行年份
+    year        Int     @db.UnsignedSmallInt
+    /// 动漫发行月份 0-一月番 1-四月番 2-七月番 3-十月番
+    month       Int     @db.UnsignedTinyInt
+    /// 动漫所属季名称
+    seasonName  String? @db.VarChar(10)
+    /// 动漫所属季
+    season      Int     @db.UnsignedTinyInt
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// n-1 动漫系列
+    animeSeries      AnimeSeries       @relation(fields: [animeSeriesId], references: [id], onDelete: Cascade)
+    /// 动漫系列ID
+    animeSeriesId    String
+    /// 1-1 动漫轮播
+    animeBanner      AnimeBanner?
+    /// 1-1 新番导视
+    animeGuide       AnimeGuide?
+    /// n-1 动漫推荐
+    animeRecommend   AnimeRecommend    @relation(fields: [animeRecommendId], references: [id], onDelete: Cascade)
+    /// 动漫推荐ID
+    animeRecommendId String
+    /// 1-n 动漫评分
+    animeRatings     AnimeRating[]
+    /// n-n 动漫分类
+    animeTags        AnimeTag[]
+    /// 1-n 动漫收藏
+    animeCollections AnimeCollection[]
+    /// 1-n 视频
+    videos           Video[]
+
+    @@index([name])
+    @@index([status])
+    @@index([type])
+    @@index([year])
+    @@index([month])
+}
+
+/// 动漫系列模型
+model AnimeSeries {
+    /// 系列ID
+    id   String @id @default(ulid())
+    /// 系列名称
+    name String @unique @db.VarChar(50)
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// 1-n 动漫
+    anime Anime[]
+
+    @@index([name])
+}
+
+/// 动漫轮播模型
+model AnimeBanner {
+    /// 动漫轮播ID
+    id String @id @default(ulid())
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// 1-1 动漫
+    anime   Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
+    /// 动漫ID
+    animeId String @unique
+}
+
+/// 新番导视模型
+model AnimeGuide {
+    /// 新番导视ID
+    id         String   @id @default(ulid())
+    /// 动漫更新日 1-7 分别对应周一到周日
+    updateDay  Int      @db.UnsignedTinyInt
+    /// 动漫更新时间
+    updateTime DateTime @db.Time
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// 1-1 动漫
+    anime   Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
+    /// 动漫ID
+    animeId String @unique
+}
+
+/// 动漫推荐模型
+model AnimeRecommend {
+    /// 动漫推荐ID
+    id   String @id @default(ulid())
+    /// 动漫推荐标题
+    name String @db.VarChar(50)
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// 1-n 动漫
+    anime Anime[]
+
+    @@index([name])
+}
+
+/// 动漫评分模型
+model AnimeRating {
+    /// 动漫评分ID
+    id      String @id @default(ulid())
+    /// 动漫评分分数
+    score   Int    @db.UnsignedTinyInt
+    /// 动漫评分内容
+    content String @db.VarChar(1000)
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// n-1 用户
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    /// 用户ID
+    userId String
+
+    /// n-1 动漫
+    anime   Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
+    /// 动漫ID
+    animeId String
+
+    @@unique([userId, animeId])
+    @@index([score])
+}
+
+/// 动漫分类模型
+model AnimeTag {
+    /// 动漫分类ID
+    id   String @id @default(ulid())
+    /// 动漫分类名称
+    name String @db.VarChar(25)
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// n-n 动漫
+    Anime Anime[]
+}
+
+/// 动漫收藏模型
+model AnimeCollection {
+    /// 动漫收藏ID
+    id String @id @default(ulid())
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// n-1 用户
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    /// 用户ID
+    userId String
+
+    /// n-1 动漫
+    anime   Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
+    /// 动漫ID
+    animeId String
+
+    @@unique([userId, animeId])
+    @@index([createdAt])
+}

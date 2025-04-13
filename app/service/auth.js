@@ -26,6 +26,23 @@ class AuthService {
         }
     }
 
+    static async refreshTokens(token, ctx) {
+        try {
+            const url = `${process.env.SSO_BASE_URL}/api/sso/refresh`;
+            const response = await got.post(url, {
+                headers: {Authorization: `Bearer ${token}`}
+            });
+
+            if (response.statusCode === 200) {
+                // 从 SSO 响应头中获取 set-cookie
+                const setCookieHeader = response.headers['set-cookie'];
+                ctx.set('Set-Cookie', setCookieHeader);
+            }
+        } catch (err) {
+            this.handleError(err);
+        }
+    }
+
     static handleError(err) {
         if (err.response?.body) {
             const {code, msg} = JSON.parse(err.response.body);

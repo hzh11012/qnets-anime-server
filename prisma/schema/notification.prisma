@@ -1,0 +1,52 @@
+/// 通知模型
+model Notification {
+    /// 通知ID
+    id      String @id @default(ulid())
+    /// 通知类型 0-系统公告 1-评论回复 2-评论点赞
+    type    Int    @db.UnsignedTinyInt
+    /// 通知标题
+    title   String @db.VarChar(50)
+    /// 通知内容
+    content String @db.VarChar(2500)
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// n-1 用户
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    /// 用户ID
+    userId String
+
+    /// 1-n 用户通知状态
+    userNotifications UserNotification[]
+
+    @@index([type])
+}
+
+/// 用户通知状态模型
+model UserNotification {
+    /// 用户通知状态ID
+    id     String  @id @default(ulid())
+    /// 是否已读
+    isRead Boolean @default(false)
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// n-1 用户
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    /// 用户ID
+    userId         String
+    /// 通知
+    notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+    /// 通知ID
+    notificationId String
+
+    @@unique([userId, notificationId])
+    @@index([isRead])
+    @@index([createdAt])
+}

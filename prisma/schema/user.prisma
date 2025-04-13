@@ -1,31 +1,102 @@
+/// 用户模型
 model User {
+    /// 用户ID
     id       String  @id @default(ulid())
+    /// 手机号
     phone    String  @unique @db.VarChar(11)
+    /// 昵称
     nickname String  @db.VarChar(25)
+    /// 头像
     avatar   String?
-    roles    Role[]
+    /// 状态 0-禁用 1-启用
+    status   Int     @default(1) @db.UnsignedTinyInt
 
+    /// 创建时间
     createdAt DateTime @default(now())
+    /// 更新时间
     updatedAt DateTime @updatedAt
+
+    /// n-n 角色
+    roles             Role[]
+    /// 1-n 动漫评分
+    animeRatings      AnimeRating[]
+    /// 1-n 动漫收藏
+    animeCollections  AnimeCollection[]
+    /// 1-n 留言
+    messages          Message[]
+    /// 1-n 视频评论
+    videoComments     VideoComment[]
+    /// 1-n 评论点赞
+    videoCommentLikes VideoCommentLike[]
+    /// 1-n 通知
+    notifications     Notification[]
+    /// 1-n 用户通知状态
+    userNotifications UserNotification[]
+
+    @@index([status])
 }
 
+/// 角色模型
 model Role {
-    id          String       @id @default(ulid())
-    name        String       @db.VarChar(10)
-    role        String       @unique
-    permissions Permission[]
-    users       User[]
+    /// 角色ID
+    id   String @id @default(ulid())
+    /// 角色名称
+    name String @db.VarChar(10)
+    /// 角色编码
+    role String @unique
 
+    /// 创建时间
     createdAt DateTime @default(now())
+    /// 更新时间
     updatedAt DateTime @updatedAt
+
+    /// n-n 权限
+    permissions Permission[]
+    /// n-n 用户
+    users       User[]
 }
 
+/// 权限模型
 model Permission {
+    /// 权限ID
     id         String @id @default(ulid())
+    /// 权限名称
     name       String @db.VarChar(10)
+    /// 权限编码
     permission String @unique
-    roles      Role[]
 
+    /// 创建时间
     createdAt DateTime @default(now())
+    /// 更新时间
     updatedAt DateTime @updatedAt
+
+    /// n-n 权限
+    roles Role[]
+}
+
+/// 留言模型
+model Message {
+    /// 留言ID
+    id      String  @id @default(ulid())
+    /// 留言类型 0-咨询 1-建议 2-投诉 3-其他
+    type    Int     @db.UnsignedTinyInt
+    /// 留言内容
+    content String  @db.VarChar(1000)
+    /// 回复
+    reply   String? @db.VarChar(1000)
+    /// 留言状态 留言状态 0-待处理 1-处理中 2-已完成 3-已关闭
+    status  Int     @db.UnsignedTinyInt
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    /// n-1 用户
+    user   User   @relation(fields: [userId], references: [id])
+    /// 用户ID
+    userId String
+
+    @@index(type)
+    @@index(status)
 }
