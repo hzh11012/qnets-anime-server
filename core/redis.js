@@ -31,12 +31,12 @@ class RedisService {
 
         this.redis = new Redis(this.connectionOptions);
 
-        this.redis.on('error', err => {
-            console.error('无法连接到Redis:', err);
-        });
-
         this.redis.on('ready', () => {
             console.log('已成功连接到Redis');
+        });
+
+        this.redis.on('error', err => {
+            console.error('无法连接到Redis:', err);
         });
     }
 
@@ -72,4 +72,6 @@ class RedisService {
     }
 }
 
-module.exports = new RedisService();
+const redis = new RedisService();
+
+module.exports = redis;

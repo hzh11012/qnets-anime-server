@@ -1,4 +1,36 @@
+const Zod = require('zod');
 const {ParameterException} = require('@core/http-exception');
+
+const commonList = {
+    page: Zod.number({
+        invalid_type_error: 'page 类型错误'
+    })
+        .int('page 必须为整数')
+        .min(1, 'page 最小为1')
+        .optional(),
+    pageSize: Zod.number({
+        invalid_type_error: 'pageSize 类型错误'
+    })
+        .int('pageSize 必须为整数')
+        .min(1, 'pageSize 最小为1')
+        .optional(),
+    order: Zod.enum(['ASC', 'asc', 'desc', 'DESC', ''], {
+        message: 'order 参数错误'
+    }).optional(),
+    orderBy: Zod.string({
+        invalid_type_error: 'orderBy 类型错误'
+    }).optional(),
+    keyword: Zod.string({
+        invalid_type_error: 'keyword 类型错误'
+    }).optional()
+};
+
+const commonId = {
+    id: Zod.string({
+        required_error: 'id 不能为空',
+        invalid_type_error: 'id 类型错误'
+    }).min(1, 'id 不能为空')
+};
 
 const validate = (schema, parameter) => {
     const result = schema.safeParse(parameter);
@@ -9,6 +41,14 @@ const validate = (schema, parameter) => {
     return result.data;
 };
 
+const commonIdValidator = parameter => {
+    const schema = Zod.object({...commonId});
+    return validate(schema, parameter);
+};
+
 module.exports = {
-    validate
+    validate,
+    commonIdValidator,
+    commonId,
+    commonList
 };
