@@ -17,8 +17,8 @@ const commonList = {
     order: Zod.enum(['ASC', 'asc', 'desc', 'DESC', ''], {
         message: 'order 参数错误'
     }).optional(),
-    orderBy: Zod.string({
-        invalid_type_error: 'orderBy 类型错误'
+    orderBy: Zod.enum(['createdAt', 'updatedAt'], {
+        message: 'orderBy 参数错误'
     }).optional(),
     keyword: Zod.string({
         invalid_type_error: 'keyword 类型错误'

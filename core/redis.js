@@ -6,19 +6,7 @@ class RedisService {
             host: process.env.REDIS_HOST,
             port: process.env.REDIS_PORT,
             password: process.env.REDIS_PASSWORD,
-            retryStrategy: times => {
-                const delay = Math.min(times * 50, 2000);
-                return delay;
-            },
-            maxRetriesPerRequest: 3,
-            enableReadyCheck: true,
-            reconnectOnError: err => {
-                const targetError = 'READONLY';
-                if (err.message.includes(targetError)) {
-                    return true;
-                }
-                return false;
-            }
+            keepAlive: true
         };
 
         this.connect();

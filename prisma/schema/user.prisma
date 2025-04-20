@@ -43,7 +43,7 @@ model Role {
     /// 角色名称
     name String @db.VarChar(10)
     /// 角色编码
-    role String @unique
+    role String @unique @db.VarChar(50)
 
     /// 创建时间
     createdAt DateTime @default(now())

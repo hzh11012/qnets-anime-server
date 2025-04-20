@@ -69,6 +69,11 @@ class PermissionDao {
             },
             orderBy: {
                 [orderBy]: order.toLocaleLowerCase()
+            },
+            include: {
+                roles: {
+                    select: {name: true}
+                }
             }
         });
 
