@@ -78,30 +78,24 @@ class RoleDao {
         keyword,
         type = 'name',
         order = 'DESC',
-        orderBy = 'createdAt'
+        orderBy: _orderBy = 'createdAt'
     }) {
-        const results = await prisma.role.findMany({
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-            where: {
-                [type]: {
-                    contains: keyword
-                }
-            },
-            orderBy: {
-                [orderBy]: order.toLocaleLowerCase()
-            },
-            include: {
-                permissions: {
-                    select: {name: true}
-                },
-                users: {
-                    select: {nickname: true}
-                }
-            }
-        });
+        const skip = (page - 1) * pageSize;
+        const take = pageSize;
+        const where = {[type]: {contains: keyword}};
+        const orderBy = {[_orderBy]: order.toLocaleLowerCase()};
+        const include = {
+            permissions: {select: {name: true}},
+            users: {select: {nickname: true}}
+        };
+        const omit = {updatedAt: true};
 
-        return results;
+        const [total, rows] = await Promise.all([
+            prisma.role.count({where}),
+            prisma.role.findMany({where, skip, take, orderBy, include, omit})
+        ]);
+
+        return {rows, total};
     }
 
     /**

@@ -54,30 +54,28 @@ class PermissionDao {
         keyword,
         type = 'name',
         order = 'DESC',
-        orderBy = 'createdAt'
+        orderBy: _orderBy = 'createdAt'
     }) {
-        const results = await prisma.permission.findMany({
-            omit: {
-                updatedAt: true
-            },
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-            where: {
-                [type]: {
-                    contains: keyword
-                }
-            },
-            orderBy: {
-                [orderBy]: order.toLocaleLowerCase()
-            },
-            include: {
-                roles: {
-                    select: {name: true}
-                }
-            }
-        });
+        const skip = (page - 1) * pageSize;
+        const take = pageSize;
+        const where = {[type]: {contains: keyword}};
+        const orderBy = {[_orderBy]: order.toLocaleLowerCase()};
+        const include = {roles: {select: {name: true}}};
+        const omit = {updatedAt: true};
 
-        return results;
+        const [total, rows] = await Promise.all([
+            prisma.permission.count({where}),
+            prisma.permission.findMany({
+                where,
+                skip,
+                take,
+                orderBy,
+                include,
+                omit
+            })
+        ]);
+
+        return {rows, total};
     }
 }
 
