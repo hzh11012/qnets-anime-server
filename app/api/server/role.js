@@ -32,9 +32,14 @@ router.delete(path, auth(['admin:all', 'role:delete']), async ctx => {
 
 // 角色列表
 router.get(path, auth(['admin:all', 'role:view']), async ctx => {
-    const params = RoleListValidator(ctx.request.body);
+    const {page, pageSize, ...rest} = ctx.request.query;
+    const params = RoleListValidator({
+        ...rest,
+        page: Number(page),
+        pageSize: Number(pageSize)
+    });
     const list = await RoleService.list(params);
-    ctx.body = res.json(list, '角色列表成功');
+    ctx.body = res.json(list, '角色列表获取成功');
 });
 
 // 角色编辑
