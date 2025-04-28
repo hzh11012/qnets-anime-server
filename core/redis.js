@@ -1,38 +1,25 @@
 const Redis = require('ioredis');
 
+const config = {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD
+};
+
 class RedisService {
     constructor() {
-        this.connectionOptions = {
-            host: process.env.REDIS_HOST,
-            port: process.env.REDIS_PORT,
-            password: process.env.REDIS_PASSWORD,
-            keepAlive: true
-        };
-
-        this.connect();
-    }
-
-    connect() {
-        if (this.redis) {
-            return;
-        }
-
-        this.redis = new Redis(this.connectionOptions);
-
-        this.redis.on('ready', () => {
-            console.log('已成功连接到Redis');
-        });
+        this.redis = new Redis(config);
 
         this.redis.on('error', err => {
             console.error('无法连接到Redis:', err);
         });
+
+        this.redis.on('ready', () => {
+            console.log('已成功连接到Redis');
+        });
     }
 
     async executeCommand(operation, ...args) {
-        if (!this.redis) {
-            this.connect();
-        }
-
         try {
             return await operation.apply(this.redis, args);
         } catch (err) {
@@ -60,6 +47,4 @@ class RedisService {
     }
 }
 
-const redis = new RedisService();
-
-module.exports = redis;
+module.exports = new RedisService();
