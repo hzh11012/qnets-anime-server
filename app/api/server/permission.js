@@ -31,12 +31,7 @@ router.delete(path, auth(['admin:all', 'permission:delete']), async ctx => {
 
 // 权限列表
 router.get(path, auth(['admin:all', 'permission:view']), async ctx => {
-    const {page, pageSize, ...rest} = ctx.request.query;
-    const params = PermissionListValidator({
-        ...rest,
-        page: Number(page),
-        pageSize: Number(pageSize)
-    });
+    const params = PermissionListValidator(ctx.request.query);
     const list = await PermissionService.list(params);
     ctx.body = res.json(list, '权限列表获取成功');
 });

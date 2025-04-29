@@ -2,8 +2,8 @@
 model User {
     /// 用户ID
     id       String  @id @default(ulid())
-    /// 手机号
-    phone    String  @unique @db.VarChar(11)
+    /// 邮箱
+    email    String  @unique
     /// 昵称
     nickname String  @db.VarChar(25)
     /// 头像

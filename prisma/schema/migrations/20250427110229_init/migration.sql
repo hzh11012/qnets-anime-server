@@ -143,14 +143,14 @@ CREATE TABLE `UserNotification` (
 -- CreateTable
 CREATE TABLE `User` (
     `id` VARCHAR(191) NOT NULL,
-    `phone` VARCHAR(11) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
     `nickname` VARCHAR(25) NOT NULL,
     `avatar` VARCHAR(191) NULL,
     `status` TINYINT UNSIGNED NOT NULL DEFAULT 1,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `User_phone_key`(`phone`),
+    UNIQUE INDEX `User_email_key`(`email`),
     INDEX `User_status_idx`(`status`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -159,7 +159,7 @@ CREATE TABLE `User` (
 CREATE TABLE `Role` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(10) NOT NULL,
-    `role` VARCHAR(191) NOT NULL,
+    `role` VARCHAR(50) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -171,7 +171,7 @@ CREATE TABLE `Role` (
 CREATE TABLE `Permission` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(10) NOT NULL,
-    `permission` VARCHAR(191) NOT NULL,
+    `permission` VARCHAR(50) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 

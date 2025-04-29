@@ -15,8 +15,6 @@ class RoleDao {
 
         if (existing) throw new Existing('角色已存在');
 
-        console.log('permissions', permissions);
-
         const data = {name, role};
 
         if (permissions && permissions.length) {

@@ -2,9 +2,9 @@ const prisma = require('@core/prisma');
 const {NotFound} = require('@core/http-exception');
 
 class UserDao {
-    static async findByPhone(phone) {
+    static async findByEmail(email) {
         const user = await prisma.user.findUnique({
-            where: {phone},
+            where: {email},
             include: {
                 roles: {
                     include: {

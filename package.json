@@ -10,6 +10,7 @@
         "lint:fix": "prettier --write ."
     },
     "prisma": {
+        "schema": "prisma/schema",
         "seed": "npx node prisma/seed.js"
     },
     "keywords": [

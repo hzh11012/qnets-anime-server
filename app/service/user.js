@@ -1,9 +1,9 @@
 const UserDao = require('@dao/user');
 
 class UserService {
-    static async getInfo(phone) {
+    static async getInfo(email) {
         try {
-            return await UserDao.findByPhone(phone);
+            return await UserDao.findByEmail(email);
         } catch (error) {
             throw error;
         }

@@ -10,8 +10,8 @@ const router = new Router({
 
 // 用户信息
 router.get('/info', auth(['info:read', 'admin:all']), async ctx => {
-    const {phone} = ctx.auth;
-    const info = await UserService.getInfo(phone);
+    const {email} = ctx.auth;
+    const info = await UserService.getInfo(email);
     ctx.body = res.json(info, '获取信息成功');
 });
 

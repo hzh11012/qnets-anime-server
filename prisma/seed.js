@@ -24,10 +24,10 @@ async function main() {
 
     // 创建默认用户
     await prisma.user.upsert({
-        where: {phone: '18749146387'},
+        where: {email: '917944345@qq.com'},
         update: {},
         create: {
-            phone: '18749146387',
+            email: '917944345@qq.com',
             nickname: 'Qnets',
             roles: {connect: [{role: 'admin'}]}
         }

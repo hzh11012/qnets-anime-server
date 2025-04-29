@@ -15,13 +15,13 @@ const verify = async token => {
             }
         }).json();
 
-        const {phone} = data;
+        const {email} = data;
 
-        const cachedPermissions = await redis.get(`permission:${phone}`);
-        if (cachedPermissions) return [JSON.parse(cachedPermissions), phone];
+        const cachedPermissions = await redis.get(`permission:${email}`);
+        if (cachedPermissions) return [JSON.parse(cachedPermissions), email];
 
         const user = await prisma.user.findUnique({
-            where: {phone},
+            where: {email},
             include: {
                 roles: {
                     include: {
@@ -41,12 +41,12 @@ const verify = async token => {
         );
 
         await redis.set(
-            `permission:${phone}`,
+            `permission:${email}`,
             JSON.stringify(permissions),
             PERMISSION_CACHE_TTL
         );
 
-        return [permissions, phone];
+        return [permissions, email];
     } catch (err) {
         if (err.response?.body) {
             const {code, msg} = JSON.parse(err.response.body);
@@ -62,7 +62,7 @@ const auth = requiredPermissions => {
         if (!token) throw new AuthFailed('令牌缺失');
 
         try {
-            const [permissions, phone] = await verify(token);
+            const [permissions, email] = await verify(token);
 
             const _requiredPermissions =
                 typeof requiredPermissions === 'string'
@@ -72,7 +72,7 @@ const auth = requiredPermissions => {
             if (!_requiredPermissions.some(p => permissions.includes(p)))
                 throw new AuthFailed('权限不足');
 
-            ctx.auth = {phone};
+            ctx.auth = {email};
             await next();
         } catch (err) {
             throw err;

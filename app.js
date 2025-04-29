@@ -9,6 +9,7 @@ const InitManager = require('@core/init');
 const errorConf = require('@middleware/exception');
 const dotenv = require('dotenv');
 const {createServer} = require('http');
+const paginationParser = require('@middleware/pagination');
 
 dotenv.config({path: '.env'});
 
@@ -43,6 +44,8 @@ app.use(
 
 // routes自动注册
 InitManager.initCore(app);
+
+app.use(paginationParser);
 
 const httpServer = createServer(app.callback());
 
