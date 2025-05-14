@@ -5,7 +5,7 @@ const pagination = (ctx, next) => {
     if (hasPage) ctx.query.page = parseInt(ctx.query.page, 10);
     if (hasPageSize) ctx.query.pageSize = parseInt(ctx.query.pageSize, 10);
 
-    next();
+    return next();
 };
 
 module.exports = pagination;

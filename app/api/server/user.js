@@ -13,7 +13,7 @@ const router = new Router({
 const PATH = 'users';
 
 // 用户信息
-router.get(`/${PATH}/me`, async ctx => {
+router.get(`/${PATH}/me`, auth(), async ctx => {
     const {email} = ctx.auth;
     const info = await UserService.getInfo(email);
     ctx.status = 200;

@@ -20,6 +20,7 @@ const app = new Koa({proxy: true});
 app.use(cors());
 onerror(app, errorConf);
 app.use(parser());
+app.use(paginationParser);
 
 // 接口调用频率限制（Rate-Limiting）
 // https://github.com/koajs/ratelimit
@@ -44,8 +45,6 @@ app.use(
 
 // routes自动注册
 InitManager.initCore(app);
-
-app.use(paginationParser);
 
 const httpServer = createServer(app.callback());
 

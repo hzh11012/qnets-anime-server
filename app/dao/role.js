@@ -83,7 +83,7 @@ class RoleDao {
         const where = {[type]: {contains: keyword}};
         const orderBy = {[_orderBy]: order.toLocaleLowerCase()};
         const include = {
-            permissions: {select: {name: true}},
+            permissions: {select: {id: true, name: true}},
             users: {select: {nickname: true}}
         };
         const omit = {updatedAt: true};

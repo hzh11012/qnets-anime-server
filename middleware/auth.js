@@ -64,13 +64,15 @@ const auth = requiredPermissions => {
         try {
             const [permissions, email] = await verify(token);
 
-            const _requiredPermissions =
-                typeof requiredPermissions === 'string'
-                    ? [requiredPermissions]
-                    : requiredPermissions;
+            if (requiredPermissions) {
+                const _requiredPermissions =
+                    typeof requiredPermissions === 'string'
+                        ? [requiredPermissions]
+                        : requiredPermissions;
 
-            if (!_requiredPermissions.some(p => permissions.includes(p)))
-                throw new AuthFailed('权限不足');
+                if (!_requiredPermissions.some(p => permissions.includes(p)))
+                    throw new AuthFailed('权限不足');
+            }
 
             ctx.auth = {email};
             await next();
