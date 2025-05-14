@@ -104,6 +104,9 @@ class RoleDao {
      * @param {string[]} permissions 权限
      */
     static async edit({id, name, role, permissions}) {
+        const existing = await prisma.role.findUnique({where: {id}});
+        if (!existing) throw new NotFound('角色不存在');
+
         let data = {name, role};
 
         if (permissions && permissions.length === 0) {
