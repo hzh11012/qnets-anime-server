@@ -15,7 +15,7 @@ const PATH = 'users';
 // 用户信息
 router.get(`/${PATH}/me`, auth(), async ctx => {
     const {email} = ctx.auth;
-    const info = await UserService.getInfo(email);
+    const info = await UserService.info(email);
     ctx.status = 200;
     ctx.body = res.json(info, '获取信息成功');
 });

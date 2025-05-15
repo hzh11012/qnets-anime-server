@@ -92,7 +92,7 @@ class RoleService {
                 }
 
                 data.permissions = {
-                    connect: permissions.map(id => ({id}))
+                    set: permissions.map(id => ({id}))
                 };
             }
 
