@@ -51,7 +51,7 @@ class UserService {
                     status: status.length ? {in: status} : {}
                 },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
-                include: {roles: {select: {name: true}}},
+                include: {roles: {select: {id: true, name: true}}},
                 omit: {updatedAt: true}
             };
 
@@ -67,13 +67,34 @@ class UserService {
      * @param {string} nickname 用户昵称
      * @param {string} avatar 用户头像
      * @param {number} status 用户状态
+     * @param {string[]} roles 角色
      */
-    static async edit({id, nickname, avatar, status}) {
+    static async edit({id, nickname, avatar, status, roles}) {
         try {
             const existing = await UserDao.findById(id);
             if (!existing) throw new NotFound('用户不存在');
 
-            const data = {nickname, avatar, status};
+            let data = {nickname, avatar, status};
+
+            if (roles && roles.length === 0) {
+                // 清空所有关联权限
+                data.roles = {set: []};
+            } else if (roles) {
+                const existingRoles = await UserDao.findRolesByIds(roles);
+
+                if (existingRoles.length !== roles.length) {
+                    const missingRoles = roles.filter(
+                        id => !existingRoles.some(p => p.id === id)
+                    );
+                    throw new NotFound(
+                        `角色不存在：${missingRoles.join(', ')}`
+                    );
+                }
+
+                data.roles = {
+                    set: roles.map(id => ({id}))
+                };
+            }
 
             return await UserDao.update(id, data);
         } catch (error) {

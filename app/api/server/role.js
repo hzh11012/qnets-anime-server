@@ -32,7 +32,7 @@ router.delete(
     async ctx => {
         const params = RoleDeleteValidator(ctx.params);
         await RoleService.delete(params);
-        ctx.status = 204;
+        ctx.status = 200;
         ctx.body = res.success('角色删除成功');
     }
 );

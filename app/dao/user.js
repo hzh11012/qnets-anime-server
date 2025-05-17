@@ -19,6 +19,12 @@ class UserDao {
         });
     }
 
+    static async findRolesByIds(ids) {
+        return await prisma.role.findMany({
+            where: {id: {in: ids}}
+        });
+    }
+
     static async list({where, skip, take, orderBy, include, omit}) {
         const [total, rows] = await Promise.all([
             prisma.user.count({where}),

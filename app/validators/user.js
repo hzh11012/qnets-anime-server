@@ -7,10 +7,11 @@ const UserListValidator = parameter => {
         type: Zod.enum(['email', 'nickname'], {
             message: 'type 参数错误'
         }).optional(),
-        status: Zod.number({
+        status: Zod.string({
             invalid_type_error: 'status 类型错误'
         })
             .array()
+            .transform(arr => arr.map(val => parseInt(val, 10)))
             .optional()
     });
     return validate(schema, parameter);
@@ -32,9 +33,19 @@ const UserEditValidator = parameter => {
                 message: 'avatar 长度不能超过255'
             })
             .optional(),
-        status: Zod.enum([0, 1], {
+        status: Zod.enum(['0', '1'], {
             message: 'status 参数错误'
-        }).optional()
+        })
+            .transform(val => parseInt(val, 10))
+            .optional(),
+        roles: Zod.array(
+            Zod.string({
+                invalid_type_error: 'roles 类型错误'
+            }),
+            {
+                invalid_type_error: 'roles 类型错误'
+            }
+        ).optional()
     };
 
     const editKeys = Object.keys(editSchema);

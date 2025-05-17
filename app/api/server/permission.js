@@ -31,7 +31,7 @@ router.delete(
     async ctx => {
         const params = PermissionDeleteValidator(ctx.params);
         await PermissionService.delete(params);
-        ctx.status = 204;
+        ctx.status = 200;
         ctx.body = res.success('权限删除成功');
     }
 );

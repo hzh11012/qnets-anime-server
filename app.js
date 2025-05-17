@@ -5,6 +5,7 @@ const {onerror} = require('koa-onerror');
 const parser = require('koa-bodyparser');
 const cors = require('@koa/cors');
 const ratelimit = require('koa-ratelimit');
+const qs = require('koa-qs');
 const InitManager = require('@core/init');
 const errorConf = require('@middleware/exception');
 const dotenv = require('dotenv');
@@ -21,6 +22,7 @@ app.use(cors());
 onerror(app, errorConf);
 app.use(parser());
 app.use(paginationParser);
+qs(app);
 
 // 接口调用频率限制（Rate-Limiting）
 // https://github.com/koajs/ratelimit
