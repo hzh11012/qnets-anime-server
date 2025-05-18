@@ -1,5 +1,4 @@
 const prisma = require('@core/prisma');
-const {NotFound} = require('@core/http-exception');
 
 class UserDao {
     static async findById(id) {
