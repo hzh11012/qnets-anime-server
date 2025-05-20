@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const {Resolve} = require('@core/http-exception');
-const AniemSeriesService = require('@service/anime-series');
+const AnimeSeriesService = require('@service/anime-series');
 const auth = require('@middleware/auth');
 const {SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {
@@ -19,7 +19,7 @@ const PATH = 'anime-series';
 // 动漫系列创建
 router.post(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.CREATE}`]), async ctx => {
     const params = AnimeSeriesCreateValidator(ctx.request.body);
-    await AniemSeriesService.create(params);
+    await AnimeSeriesService.create(params);
     ctx.status = 201;
     ctx.body = res.success('动漫系列创建成功');
 });
@@ -30,7 +30,7 @@ router.delete(
     auth([ADMIN, `${PATH}:${PERM.DELETE}`]),
     async ctx => {
         const params = AnimeSeriesDeleteValidator(ctx.params);
-        await AniemSeriesService.delete(params);
+        await AnimeSeriesService.delete(params);
         ctx.status = 200;
         ctx.body = res.success('动漫系列删除成功');
     }
@@ -39,7 +39,7 @@ router.delete(
 // 动漫系列列表
 router.get(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.VIEW}`]), async ctx => {
     const params = AnimeSeriesListValidator(ctx.request.query);
-    const list = await AniemSeriesService.list(params);
+    const list = await AnimeSeriesService.list(params);
     ctx.status = 200;
     ctx.body = res.json(list, '动漫系列列表获取成功');
 });

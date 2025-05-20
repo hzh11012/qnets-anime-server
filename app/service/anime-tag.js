@@ -1,37 +1,37 @@
-const AnimeSeriesDao = require('@dao/anime-series');
+const AnimeTagDao = require('@dao/anime-tag');
 const {NotFound, Existing} = require('@core/http-exception');
 
-class AnimeSeriesService {
+class AnimeTagService {
     /**
-     * @title 动漫系列创建
-     * @param {string} name 系列名称
+     * @title 动漫分类创建
+     * @param {string} name 分类名称
      */
     static async create({name}) {
         try {
-            // 检查动漫系列是否存在
-            const existing = await AnimeSeriesDao.findByName(name);
-            if (existing) throw new Existing('动漫系列已存在');
+            // 检查动漫分类是否存在
+            const existing = await AnimeTagDao.findByName(name);
+            if (existing) throw new Existing('动漫分类已存在');
 
             const data = {name};
 
-            return await AnimeSeriesDao.create(data);
+            return await AnimeTagDao.create(data);
         } catch (error) {
             throw error;
         }
     }
 
     /**
-     * @title 动漫系列删除
-     * @param {string} id 系列ID
+     * @title 动漫分类删除
+     * @param {string} id 分类ID
      */
     static async delete({id}) {
         try {
-            // 检查动漫系列及其关联
+            // 检查动漫分类及其关联
             const existing = await AnimeSeriesDao.findByIdWithRelations(id);
-            if (!existing) throw new NotFound('动漫系列存在');
+            if (!existing) throw new NotFound('动漫分类存在');
 
             if (existing.anime.length)
-                throw new Existing('无法删除：动漫系列存在关联动漫');
+                throw new Existing('无法删除：动漫分类存在关联动漫');
 
             return await AnimeSeriesDao.delete(id);
         } catch (error) {
@@ -40,7 +40,7 @@ class AnimeSeriesService {
     }
 
     /**
-     * @title 动漫系列列表
+     * @title 动漫分类列表
      * @param {number} page - 页码 [可选]
      * @param {number} pageSize - 每页数量 [可选]
      * @param {string} keyword - 搜索关键词 [可选]
@@ -68,11 +68,11 @@ class AnimeSeriesService {
                 omit: {updatedAt: true}
             };
 
-            return await AnimeSeriesDao.list(params);
+            return await AnimeTagDao.list(params);
         } catch (error) {
             throw error;
         }
     }
 }
 
-module.exports = AnimeSeriesService;
+module.exports = AnimeTagService;
