@@ -16,7 +16,7 @@ class AnimeSeriesDao {
     static async findByIdWithRelations(id) {
         return await prisma.animeSeries.findUnique({
             where: {id},
-            include: {anime: true}
+            include: {animes: true}
         });
     }
 

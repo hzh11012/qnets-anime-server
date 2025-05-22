@@ -28,9 +28,9 @@ class AnimeSeriesService {
         try {
             // 检查动漫系列及其关联
             const existing = await AnimeSeriesDao.findByIdWithRelations(id);
-            if (!existing) throw new NotFound('动漫系列存在');
+            if (!existing) throw new NotFound('动漫系列不存在');
 
-            if (existing.anime.length)
+            if (existing.animes.length)
                 throw new Existing('无法删除：动漫系列存在关联动漫');
 
             return await AnimeSeriesDao.delete(id);
@@ -63,7 +63,7 @@ class AnimeSeriesService {
                 where: {[type]: {contains: keyword}},
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
-                    anime: {select: {name: true}}
+                    animes: {select: {name: true}}
                 },
                 omit: {updatedAt: true}
             };

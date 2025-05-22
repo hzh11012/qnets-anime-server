@@ -27,13 +27,13 @@ class AnimeTagService {
     static async delete({id}) {
         try {
             // 检查动漫分类及其关联
-            const existing = await AnimeSeriesDao.findByIdWithRelations(id);
-            if (!existing) throw new NotFound('动漫分类存在');
+            const existing = await AnimeTagDao.findByIdWithRelations(id);
+            if (!existing) throw new NotFound('动漫分类不存在');
 
-            if (existing.anime.length)
+            if (existing.animes.length)
                 throw new Existing('无法删除：动漫分类存在关联动漫');
 
-            return await AnimeSeriesDao.delete(id);
+            return await AnimeTagDao.delete(id);
         } catch (error) {
             throw error;
         }

@@ -73,7 +73,7 @@ model AnimeSeries {
     updatedAt DateTime @updatedAt
 
     /// 1-n 动漫
-    anime Anime[]
+    animes Anime[]
 
     @@index([name])
 }
@@ -165,7 +165,7 @@ model AnimeTag {
     /// 动漫分类ID
     id   String @id @default(ulid())
     /// 动漫分类名称
-    name String @db.VarChar(25)
+    name String @unique @db.VarChar(25)
 
     /// 创建时间
     createdAt DateTime @default(now())
