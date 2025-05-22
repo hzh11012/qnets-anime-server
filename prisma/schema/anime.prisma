@@ -173,7 +173,7 @@ model AnimeTag {
     updatedAt DateTime @updatedAt
 
     /// n-n 动漫
-    Anime Anime[]
+    animes Anime[]
 }
 
 /// 动漫收藏模型

@@ -9,14 +9,14 @@ class AnimeTagDao {
         return await prisma.animeTag.delete({where: {id}});
     }
 
-    static async findByRole(name) {
+    static async findByName(name) {
         return await prisma.animeTag.findUnique({where: {name}});
     }
 
     static async findByIdWithRelations(id) {
         return await prisma.animeTag.findUnique({
             where: {id},
-            include: {anime: true}
+            include: {animes: true}
         });
     }
 

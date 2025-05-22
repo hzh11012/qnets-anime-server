@@ -9,7 +9,7 @@ class AnimeSeriesDao {
         return await prisma.animeSeries.delete({where: {id}});
     }
 
-    static async findByRole(name) {
+    static async findByName(name) {
         return await prisma.animeSeries.findUnique({where: {name}});
     }
 

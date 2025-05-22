@@ -63,7 +63,7 @@ class AnimeTagService {
                 where: {[type]: {contains: keyword}},
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
-                    anime: {select: {name: true}}
+                    animes: {select: {name: true}}
                 },
                 omit: {updatedAt: true}
             };
