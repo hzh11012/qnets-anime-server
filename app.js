@@ -2,7 +2,7 @@ require('module-alias/register');
 
 const Koa = require('koa');
 const {onerror} = require('koa-onerror');
-const parser = require('koa-bodyparser');
+const {bodyParser} = require('@koa/bodyparser');
 const cors = require('@koa/cors');
 const ratelimit = require('koa-ratelimit');
 const helmet = require('koa-helmet');
@@ -12,6 +12,7 @@ const errorConf = require('@middleware/exception');
 const dotenv = require('dotenv');
 const {createServer} = require('http');
 const paginationParser = require('@middleware/pagination');
+const trimmer = require('@middleware/trimmer');
 
 dotenv.config({path: '.env'});
 
@@ -24,9 +25,10 @@ app.use(helmet());
 
 app.use(cors());
 onerror(app, errorConf);
-app.use(parser());
+app.use(bodyParser());
 app.use(paginationParser);
 qs(app);
+app.use(trimmer)
 
 // 接口调用频率限制（Rate-Limiting）
 // https://github.com/koajs/ratelimit
