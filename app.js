@@ -5,6 +5,7 @@ const {onerror} = require('koa-onerror');
 const parser = require('koa-bodyparser');
 const cors = require('@koa/cors');
 const ratelimit = require('koa-ratelimit');
+const helmet = require('koa-helmet');
 const qs = require('koa-qs');
 const InitManager = require('@core/init');
 const errorConf = require('@middleware/exception');
@@ -17,6 +18,9 @@ dotenv.config({path: '.env'});
 const redis = require('@core/redis');
 
 const app = new Koa({proxy: true});
+
+// 安全中间件
+app.use(helmet());
 
 app.use(cors());
 onerror(app, errorConf);
