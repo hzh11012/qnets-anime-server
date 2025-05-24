@@ -24,7 +24,7 @@ class MessageService {
      * @param {string} keyword - 搜索关键词 [可选]
      * @param {string} type - 搜索类型 [可选]
      * @param {number[]} status - 留言状态 留言状态 0-待处理 1-处理中 2-已完成 3-已关闭 [可选]
-     * @param {number[]} types = 留言类型 0-咨询 1-建议 2-投诉 3-其他 [可选]
+     * @param {number[]} types - 留言类型 0-咨询 1-建议 2-投诉 3-其他 [可选]
      * @param {string} order - 排序 [可选]
      * @param {string} orderBy - 排序字段 [可选]
      */

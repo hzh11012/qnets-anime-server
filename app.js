@@ -26,9 +26,9 @@ app.use(helmet());
 app.use(cors());
 onerror(app, errorConf);
 app.use(bodyParser());
-app.use(paginationParser);
 qs(app);
-app.use(trimmer)
+app.use(trimmer);
+app.use(paginationParser);
 
 // 接口调用频率限制（Rate-Limiting）
 // https://github.com/koajs/ratelimit

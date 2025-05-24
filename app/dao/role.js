@@ -13,6 +13,10 @@ class RoleDao {
         return await prisma.role.findUnique({where: {id}});
     }
 
+    static async findByIds(ids) {
+        return await prisma.role.findMany({where: {id: {in: ids}}});
+    }
+
     static async findByRole(role) {
         return await prisma.role.findUnique({where: {role}});
     }
@@ -21,12 +25,6 @@ class RoleDao {
         return await prisma.role.findUnique({
             where: {id},
             include: {users: true, permissions: true}
-        });
-    }
-
-    static async findPermissionsByIds(ids) {
-        return await prisma.permission.findMany({
-            where: {id: {in: ids}}
         });
     }
 

@@ -29,7 +29,9 @@ const commonId = {
     id: Zod.string({
         required_error: 'id 不能为空',
         invalid_type_error: 'id 类型错误'
-    }).min(1, 'id 不能为空')
+    })
+        .max(255, 'id 长度不能超过255')
+        .min(1, 'id 不能为空')
 };
 
 const validate = (schema, parameter) => {

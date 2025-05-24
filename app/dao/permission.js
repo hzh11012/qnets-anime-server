@@ -9,6 +9,10 @@ class PermissionDao {
         return await prisma.permission.delete({where: {id}});
     }
 
+    static async findByIds(ids) {
+        return await prisma.permission.findMany({where: {id: {in: ids}}});
+    }
+
     static async findByPermission(permission) {
         return await prisma.permission.findUnique({where: {permission}});
     }

@@ -40,10 +40,8 @@ model Anime {
     animeBanner      AnimeBanner?
     /// 1-1 新番导视
     animeGuide       AnimeGuide?
-    /// n-1 动漫推荐
-    animeRecommend   AnimeRecommend    @relation(fields: [animeRecommendId], references: [id], onDelete: Cascade)
-    /// 动漫推荐ID
-    animeRecommendId String
+    /// n-n 动漫推荐
+    animeRecommends   AnimeRecommend[]
     /// 1-n 动漫评分
     animeRatings     AnimeRating[]
     /// n-n 动漫分类
@@ -126,8 +124,8 @@ model AnimeRecommend {
     /// 更新时间
     updatedAt DateTime @updatedAt
 
-    /// 1-n 动漫
-    anime Anime[]
+    /// n-n 动漫
+    animes Anime[]
 
     @@index([name])
 }

@@ -12,14 +12,14 @@ const MessageListValidator = parameter => {
         type: Zod.enum(['content', 'replay'], {
             message: 'type 参数错误'
         }).optional(),
-        types: Zod.string({
-            invalid_type_error: 'types 类型错误'
+        types: Zod.enum(['0', '1', '2', '3'], {
+            message: 'types 参数错误'
         })
             .array()
             .transform(arr => arr.map(val => parseInt(val, 10)))
             .optional(),
-        status: Zod.string({
-            invalid_type_error: 'status 类型错误'
+        status: Zod.enum(['0', '1', '2', '3'], {
+            message: 'status 参数错误'
         })
             .array()
             .transform(arr => arr.map(val => parseInt(val, 10)))

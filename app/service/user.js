@@ -1,3 +1,4 @@
+const RoleDao = require('@app/dao/role');
 const UserDao = require('@dao/user');
 
 class UserService {
@@ -80,12 +81,15 @@ class UserService {
                 // 清空所有关联权限
                 data.roles = {set: []};
             } else if (roles) {
-                const existingRoles = await UserDao.findRolesByIds(roles);
+                const existingRoles = await RoleDao.findByIds(roles);
 
                 if (existingRoles.length !== roles.length) {
-                    const missingRoles = roles.filter(
-                        id => !existingRoles.some(p => p.id === id)
-                    );
+                    const missingRoles = roles
+                        .filter(id => !existingRoles.some(p => p.id === id))
+                        .map(id => {
+                            const role = existingRoles.find(p => p.id === id);
+                            return role ? role.name : id;
+                        });
                     throw new NotFound(
                         `角色不存在：${missingRoles.join(', ')}`
                     );

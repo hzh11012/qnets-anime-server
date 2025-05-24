@@ -9,6 +9,10 @@ class AnimeTagDao {
         return await prisma.animeTag.delete({where: {id}});
     }
 
+    static async findByIds(ids) {
+        return await prisma.animeTag.findMany({where: {id: {in: ids}}});
+    }
+
     static async findByName(name) {
         return await prisma.animeTag.findUnique({where: {name}});
     }

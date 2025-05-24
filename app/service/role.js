@@ -1,4 +1,5 @@
 const RoleDao = require('@dao/role');
+const PermissionDao = require('@app/dao/permission');
 const {NotFound, Existing} = require('@core/http-exception');
 
 class RoleService {
@@ -19,12 +20,19 @@ class RoleService {
             // 处理权限关联
             if (permissions && permissions.length) {
                 const existingPermissions =
-                    await RoleDao.findPermissionsByIds(permissions);
+                    await PermissionDao.findByIds(permissions);
 
                 if (existingPermissions.length !== permissions.length) {
-                    const missingPermissions = permissions.filter(
-                        id => !existingPermissions.some(p => p.id === id)
-                    );
+                    const missingPermissions = permissions
+                        .filter(
+                            id => !existingPermissions.some(p => p.id === id)
+                        )
+                        .map(id => {
+                            const permission = existingPermissions.find(
+                                p => p.id === id
+                            );
+                            return permission ? permission.name : id;
+                        });
                     throw new NotFound(
                         `权限不存在：${missingPermissions.join(', ')}`
                     );
@@ -80,12 +88,19 @@ class RoleService {
                 data.permissions = {set: []};
             } else if (permissions) {
                 const existingPermissions =
-                    await RoleDao.findPermissionsByIds(permissions);
+                    await PermissionDao.findByIds(permissions);
 
                 if (existingPermissions.length !== permissions.length) {
-                    const missingPermissions = permissions.filter(
-                        id => !existingPermissions.some(p => p.id === id)
-                    );
+                    const missingPermissions = permissions
+                        .filter(
+                            id => !existingPermissions.some(p => p.id === id)
+                        )
+                        .map(id => {
+                            const permission = existingPermissions.find(
+                                p => p.id === id
+                            );
+                            return permission ? permission.name : id;
+                        });
                     throw new NotFound(
                         `权限不存在：${missingPermissions.join(', ')}`
                     );
