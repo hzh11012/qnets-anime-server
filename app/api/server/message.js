@@ -7,7 +7,7 @@ const {
     MessageListValidator,
     MessageEditValidator,
     MessageDeleteValidator
-} = require('@validators/message');
+} = require('@validators/server/message');
 const res = new Resolve();
 
 const router = new Router({

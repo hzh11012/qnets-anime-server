@@ -8,7 +8,7 @@ const {
     RoleDeleteValidator,
     RoleEditValidator,
     RoleListValidator
-} = require('@validators/role');
+} = require('@validators/server/role');
 const res = new Resolve();
 
 const router = new Router({
@@ -56,6 +56,17 @@ router.patch(
         const role = await RoleService.edit(params);
         ctx.status = 201;
         ctx.body = res.json(role, '角色编辑成功');
+    }
+);
+
+// 角色选项
+router.get(
+    `/${PATH}/options`,
+    auth([ADMIN, `${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const options = await RoleService.options();
+        ctx.status = 200;
+        ctx.body = res.json(options, '角色选项获取成功');
     }
 );
 

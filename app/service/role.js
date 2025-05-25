@@ -152,6 +152,27 @@ class RoleService {
             throw error;
         }
     }
+
+    /**
+     * @title 角色选项
+     */
+    static async options() {
+        try {
+            const params = {
+                select: {id: true, name: true},
+                orderBy: {createdAt: 'desc'}
+            };
+
+            const result = await RoleDao.list(params);
+
+            return result.rows.map(item => ({
+                label: item.name,
+                value: item.id
+            }));
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = RoleService;

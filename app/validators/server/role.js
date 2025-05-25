@@ -4,7 +4,7 @@ const {
     commonList,
     validate,
     commonIdValidator
-} = require('@validators/common');
+} = require('@validators/server/common');
 
 const RoleCreateValidator = parameter => {
     const schema = Zod.object({

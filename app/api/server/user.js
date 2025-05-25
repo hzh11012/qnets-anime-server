@@ -3,7 +3,7 @@ const {Resolve} = require('@core/http-exception');
 const UserService = require('@service/user');
 const auth = require('@middleware/auth');
 const {SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
-const {UserListValidator, UserEditValidator} = require('@validators/user');
+const {UserListValidator, UserEditValidator} = require('@validators/server/user');
 const res = new Resolve();
 
 const router = new Router({

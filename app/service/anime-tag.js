@@ -73,6 +73,27 @@ class AnimeTagService {
             throw error;
         }
     }
+
+    /**
+     * @title 动漫分类选项
+     */
+    static async options() {
+        try {
+            const params = {
+                select: {id: true, name: true},
+                orderBy: {createdAt: 'desc'}
+            };
+
+            const result = await AnimeTagDao.list(params);
+
+            return result.rows.map(item => ({
+                label: item.name,
+                value: item.id
+            }));
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = AnimeTagService;

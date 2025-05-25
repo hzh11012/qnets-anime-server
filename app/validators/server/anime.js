@@ -4,7 +4,7 @@ const {
     commonList,
     validate,
     commonIdValidator
-} = require('@validators/common');
+} = require('@validators/server/common');
 
 const IMAGE_REG = /^(https?:)?\/\/.*\.(jpe?g|png|webp)$/;
 

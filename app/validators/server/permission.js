@@ -1,5 +1,5 @@
 const Zod = require('zod');
-const {commonList, validate, commonIdValidator} = require('@validators/common');
+const {commonList, validate, commonIdValidator} = require('@validators/server/common');
 
 const PermissionCreateValidator = parameter => {
     const schema = Zod.object({

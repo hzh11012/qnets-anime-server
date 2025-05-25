@@ -1,21 +1,21 @@
 const Zod = require('zod');
-const {commonList, validate, commonIdValidator} = require('@validators/common');
+const {commonList, validate, commonIdValidator} = require('@validators/server/common');
 
-const AnimeSeriesCreateValidator = parameter => {
+const AnimeTagCreateValidator = parameter => {
     const schema = Zod.object({
         name: Zod.string({
             required_error: 'name 不能为空',
             invalid_type_error: 'name 类型错误'
         })
-            .max(50, {
-                message: 'name 长度不能超过50'
+            .max(25, {
+                message: 'name 长度不能超过25'
             })
             .min(1, 'name 不能为空')
     });
     return validate(schema, parameter);
 };
 
-const AnimeSeriesListValidator = parameter => {
+const AnimeTagListValidator = parameter => {
     const schema = Zod.object({
         ...commonList,
         type: Zod.enum(['name'], {
@@ -26,7 +26,7 @@ const AnimeSeriesListValidator = parameter => {
 };
 
 module.exports = {
-    AnimeSeriesCreateValidator,
-    AnimeSeriesListValidator,
-    AnimeSeriesDeleteValidator: commonIdValidator
+    AnimeTagCreateValidator,
+    AnimeTagListValidator,
+    AnimeTagDeleteValidator: commonIdValidator
 };

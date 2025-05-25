@@ -7,7 +7,7 @@ const {
     AnimeSeriesCreateValidator,
     AnimeSeriesListValidator,
     AnimeSeriesDeleteValidator
-} = require('@validators/anime-series');
+} = require('@validators/server/anime-series');
 const res = new Resolve();
 
 const router = new Router({
@@ -43,5 +43,16 @@ router.get(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.VIEW}`]), async ctx => {
     ctx.status = 200;
     ctx.body = res.json(list, '动漫系列列表获取成功');
 });
+
+// 动漫系列选项
+router.get(
+    `/${PATH}/options`,
+    auth([ADMIN, `${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const options = await AnimeSeriesService.options();
+        ctx.status = 200;
+        ctx.body = res.json(options, '动漫系列选项获取成功');
+    }
+);
 
 module.exports = router;

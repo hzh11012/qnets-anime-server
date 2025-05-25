@@ -70,6 +70,27 @@ class PermissionService {
             throw error;
         }
     }
+
+    /**
+     * @title 权限选项
+     */
+    static async options() {
+        try {
+            const params = {
+                select: {id: true, name: true},
+                orderBy: {createdAt: 'desc'}
+            };
+
+            const result = await PermissionDao.list(params);
+
+            return result.rows.map(item => ({
+                label: item.name,
+                value: item.id
+            }));
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = PermissionService;

@@ -7,7 +7,7 @@ const {
     AnimeTagCreateValidator,
     AnimeTagListValidator,
     AnimeTagDeleteValidator
-} = require('@validators/anime-tag');
+} = require('@validators/server/anime-tag');
 const res = new Resolve();
 
 const router = new Router({
@@ -36,12 +36,23 @@ router.delete(
     }
 );
 
-// 动漫系列列表
+// 动漫分类列表
 router.get(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.VIEW}`]), async ctx => {
     const params = AnimeTagListValidator(ctx.request.query);
     const list = await AnimeTagService.list(params);
     ctx.status = 200;
     ctx.body = res.json(list, '动漫分类列表获取成功');
 });
+
+// 动漫分类选项
+router.get(
+    `/${PATH}/options`,
+    auth([ADMIN, `${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const options = await AnimeTagService.options();
+        ctx.status = 200;
+        ctx.body = res.json(options, '动漫分类选项获取成功');
+    }
+);
 
 module.exports = router;
