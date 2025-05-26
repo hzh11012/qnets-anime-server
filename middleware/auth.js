@@ -36,6 +36,8 @@ const verify = async token => {
         });
         if (!user) throw new NotFound('用户不存在');
 
+        if (user.status === 0) throw new NotFound('用户已封禁，请联系管理员');
+
         const permissions = user.roles.flatMap(role =>
             role.permissions.map(p => p.permission)
         );

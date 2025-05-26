@@ -15,7 +15,7 @@ const router = new Router({
     prefix: SERVER_PREFIX
 });
 
-const PATH = 'animes';
+const PATH = 'anime';
 
 // 动漫创建
 router.post(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.CREATE}`]), async ctx => {

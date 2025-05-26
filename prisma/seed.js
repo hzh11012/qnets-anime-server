@@ -1,11 +1,12 @@
 require('module-alias/register');
 
 const prisma = require('@core/prisma');
+const {INIT_PERMISSIONS, ADMIN} = require('@core/consts');
 
 async function main() {
     // 创建默认权限
     await prisma.permission.createMany({
-        data: [{name: '所有权限', permission: 'admin:all'}],
+        data: INIT_PERMISSIONS,
         skipDuplicates: true
     });
 
@@ -16,9 +17,7 @@ async function main() {
         create: {
             name: '管理员',
             role: 'admin',
-            permissions: {
-                connect: [{permission: 'admin:all'}]
-            }
+            permissions: {connect: [{permission: ADMIN}]}
         }
     });
 
