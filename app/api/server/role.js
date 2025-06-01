@@ -53,9 +53,9 @@ router.patch(
         const params = RoleEditValidator(
             Object.assign(ctx.params, ctx.request.body)
         );
-        const role = await RoleService.edit(params);
+        const data = await RoleService.edit(params);
         ctx.status = 201;
-        ctx.body = res.json(role, '角色编辑成功');
+        ctx.body = res.json(data, '角色编辑成功');
     }
 );
 

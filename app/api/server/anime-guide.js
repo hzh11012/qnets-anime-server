@@ -53,9 +53,9 @@ router.patch(
         const params = AnimeGuideEditValidator(
             Object.assign(ctx.params, ctx.request.body)
         );
-        const user = await AnimeGuideService.edit(params);
+        const data = await AnimeGuideService.edit(params);
         ctx.status = 201;
-        ctx.body = res.json(user, '新番导视编辑成功');
+        ctx.body = res.json(data, '新番导视编辑成功');
     }
 );
 

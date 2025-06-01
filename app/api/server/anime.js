@@ -53,17 +53,21 @@ router.patch(
         const params = AnimeEditValidator(
             Object.assign(ctx.params, ctx.request.body)
         );
-        const user = await AnimeService.edit(params);
+        const data = await AnimeService.edit(params);
         ctx.status = 201;
-        ctx.body = res.json(user, '动漫编辑成功');
+        ctx.body = res.json(data, '动漫编辑成功');
     }
 );
 
 // 动漫选项
-router.get(`/${PATH}/options`, auth([ADMIN, `${PATH}:${PERM.VIEW}`]), async ctx => {
-    const options = await AnimeService.options();
-    ctx.status = 200;
-    ctx.body = res.json(options, '动漫选项获取成功');
-});
+router.get(
+    `/${PATH}/options`,
+    auth([ADMIN, `${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const options = await AnimeService.options();
+        ctx.status = 200;
+        ctx.body = res.json(options, '动漫选项获取成功');
+    }
+);
 
 module.exports = router;

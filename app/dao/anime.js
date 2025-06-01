@@ -9,6 +9,10 @@ class AnimeDao {
         return await prisma.anime.findUnique({where: {id}});
     }
 
+    static async findByIds(ids) {
+        return await prisma.anime.findMany({where: {id: {in: ids}}});
+    }
+
     static async create(data) {
         return await prisma.anime.create({data});
     }

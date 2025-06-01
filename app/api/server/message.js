@@ -44,9 +44,9 @@ router.patch(
         const params = MessageEditValidator(
             Object.assign(ctx.params, ctx.request.body)
         );
-        const role = await MessageService.edit(params);
+        const data = await MessageService.edit(params);
         ctx.status = 201;
-        ctx.body = res.json(role, '留言编辑成功');
+        ctx.body = res.json(data, '留言编辑成功');
     }
 );
 
