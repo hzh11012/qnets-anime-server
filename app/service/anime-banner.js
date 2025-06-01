@@ -61,13 +61,9 @@ class AnimeBannerService {
             const params = {
                 skip: (page - 1) * pageSize,
                 take: pageSize,
-                where: keyword
-                    ? {
-                          anime: {
-                              [type]: {contains: keyword}
-                          }
-                      }
-                    : {},
+                where: {
+                    anime: {[type]: keyword ? {contains: keyword} : undefined}
+                },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
                     anime: {

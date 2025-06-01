@@ -49,7 +49,7 @@ class UserService {
                 take: pageSize,
                 where: {
                     [type]: {contains: keyword},
-                    status: status.length ? {in: status} : {}
+                    status: status.length ? {in: status} : undefined
                 },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {roles: {select: {id: true, name: true}}},

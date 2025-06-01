@@ -44,8 +44,8 @@ class MessageService {
                 take: pageSize,
                 where: {
                     [type]: {contains: keyword},
-                    status: status.length ? {in: status} : {},
-                    type: types.length ? {in: types} : {}
+                    status: status.length ? {in: status} : undefined,
+                    type: types.length ? {in: types} : undefined
                 },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {user: {select: {nickname: true}}},

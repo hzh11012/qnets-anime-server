@@ -106,19 +106,13 @@ class AnimeService {
                 take: pageSize,
                 where: {
                     [type]: {contains: keyword},
-                    status: status.length ? {in: status} : {},
-                    type: types.length ? {in: types} : {},
-                    month: months.length ? {in: months} : {},
-                    year: years.length ? {in: years} : {},
+                    status: status.length ? {in: status} : undefined,
+                    type: types.length ? {in: types} : undefined,
+                    month: months.length ? {in: months} : undefined,
+                    year: years.length ? {in: years} : undefined,
                     animeTags: tags.length
-                        ? {
-                              some: {
-                                  id: {
-                                      in: tags
-                                  }
-                              }
-                          }
-                        : {}
+                        ? {some: {id: {in: tags}}}
+                        : undefined
                 },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {animeTags: {select: {id: true, name: true}}},

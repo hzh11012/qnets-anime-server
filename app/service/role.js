@@ -81,6 +81,12 @@ class RoleService {
             const existing = await RoleDao.findById(id);
             if (!existing) throw new NotFound('角色不存在');
 
+            // 检查角色编码是否重复
+            if (existing.role !== role) {
+                const existingRole = await RoleDao.findByRole(role);
+                if (existingRole) throw new Existing('角色编码已存在');
+            }
+
             let data = {name, role};
 
             if (permissions && permissions.length === 0) {

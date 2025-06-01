@@ -7,8 +7,8 @@ const PermissionCreateValidator = parameter => {
             required_error: 'name 不能为空',
             invalid_type_error: 'name 类型错误'
         })
-            .max(10, {
-                message: 'name 长度不能超过10'
+            .max(20, {
+                message: 'name 长度不能超过20'
             })
             .min(1, 'name 不能为空'),
         permission: Zod.string({

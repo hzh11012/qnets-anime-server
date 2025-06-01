@@ -99,12 +99,11 @@ model AnimeGuide {
     /// 动漫更新日 1-7 分别对应周一到周日
     updateDay  Int      @db.UnsignedTinyInt
     /// 动漫更新时间
-    updateTime DateTime @db.Time
-
+    updateTime String   @db.VarChar(8)
     /// 创建时间
-    createdAt DateTime @default(now())
+    createdAt  DateTime @default(now())
     /// 更新时间
-    updatedAt DateTime @updatedAt
+    updatedAt  DateTime @updatedAt
 
     /// 1-1 动漫
     anime   Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)

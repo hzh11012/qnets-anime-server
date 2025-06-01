@@ -52,7 +52,7 @@ CREATE TABLE `AnimeBanner` (
 CREATE TABLE `AnimeGuide` (
     `id` VARCHAR(191) NOT NULL,
     `updateDay` TINYINT UNSIGNED NOT NULL,
-    `updateTime` TIME NOT NULL,
+    `updateTime` VARCHAR(8) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `animeId` VARCHAR(191) NOT NULL,

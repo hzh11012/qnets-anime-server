@@ -24,7 +24,7 @@ router.post(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.CREATE}`]), async ctx => {
     ctx.body = res.success('动漫轮播创建成功');
 });
 
-//动漫轮播删除;
+//动漫轮播删除
 router.delete(
     `/${PATH}/:id`,
     auth([ADMIN, `${PATH}:${PERM.DELETE}`]),
