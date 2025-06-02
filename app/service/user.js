@@ -1,4 +1,4 @@
-const RoleDao = require('@app/dao/role');
+const RoleDao = require('@dao/role');
 const UserDao = require('@dao/user');
 
 class UserService {

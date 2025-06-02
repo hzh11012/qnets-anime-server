@@ -1,5 +1,5 @@
 const AnimeRecommendDao = require('@dao/anime-recommend');
-const AnimeDao = require('@app/dao/anime');
+const AnimeDao = require('@dao/anime');
 const {NotFound, Existing} = require('@core/http-exception');
 
 class AnimeRecommendService {

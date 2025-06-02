@@ -1,6 +1,6 @@
 const AnimeDao = require('@dao/anime');
-const AnimeSeriesDao = require('@app/dao/anime-series');
-const AnimeTagDao = require('@app/dao/anime-tag');
+const AnimeSeriesDao = require('@dao/anime-series');
+const AnimeTagDao = require('@dao/anime-tag');
 const {NotFound, Existing} = require('@core/http-exception');
 
 class AnimeService {

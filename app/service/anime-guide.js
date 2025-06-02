@@ -1,5 +1,5 @@
 const {NotFound, Existing} = require('@core/http-exception');
-const AnimeDao = require('@app/dao/anime');
+const AnimeDao = require('@dao/anime');
 const AnimeGuideDao = require('@dao/anime-guide');
 
 class AnimeGuideService {

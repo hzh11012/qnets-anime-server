@@ -1,5 +1,5 @@
 const RoleDao = require('@dao/role');
-const PermissionDao = require('@app/dao/permission');
+const PermissionDao = require('@dao/permission');
 const {NotFound, Existing} = require('@core/http-exception');
 
 class RoleService {
