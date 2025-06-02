@@ -26,7 +26,7 @@ const VideoCreateValidator = parameter => {
             .min(1, 'title 不能为空'),
         url: Zod.string({
             required_error: 'url 不能为空',
-            invalid_type_error: 'courlverUrl 类型错误'
+            invalid_type_error: 'url 类型错误'
         })
             .max(255, {
                 message: 'url 长度不能超过255'

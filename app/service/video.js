@@ -80,7 +80,7 @@ class VideoService {
                 take: pageSize,
                 where,
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
-                include: {anime: {select: {name: true}}},
+                include: {anime: {select: {name: true, coverUrl: true}}},
                 omit: {updatedAt: true}
             };
 
@@ -100,7 +100,6 @@ class VideoService {
      */
     static async edit({id, animeId, title, episode, url}) {
         try {
-            // let data = {animeId, title, episode, url};
             // 检查动漫是否存在
             const existingAnime = await AnimeDao.findById(animeId);
             if (!existingAnime) throw new NotFound('动漫不存在');
@@ -116,6 +115,7 @@ class VideoService {
                 );
                 if (existingVideo) throw new Existing('视频集数已存在');
             }
+            const data = {animeId, title, episode, url};
 
             return await VideoDao.update(id, data);
         } catch (error) {
