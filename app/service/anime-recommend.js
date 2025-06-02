@@ -84,7 +84,7 @@ class AnimeRecommendService {
                     status: status.length ? {in: status} : undefined
                 },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
-                include: {anime: {select: {id: true, name: true}}},
+                include: {animes: {select: {id: true, name: true}}},
                 omit: {updatedAt: true}
             };
 

@@ -1,5 +1,6 @@
 const Zod = require('zod');
 const {
+    commonId,
     commonList,
     validate,
     commonIdValidator
@@ -35,7 +36,13 @@ const AnimeRecommendListValidator = parameter => {
         ...commonList,
         type: Zod.enum(['name'], {
             message: 'type 参数错误'
-        }).optional()
+        }).optional(),
+        status: Zod.enum(['0', '1'], {
+            message: 'status 参数错误'
+        })
+            .array()
+            .transform(arr => arr.map(val => parseInt(val, 10)))
+            .optional()
     });
     return validate(schema, parameter);
 };
@@ -54,11 +61,11 @@ const AnimeRecommendEditValidator = parameter => {
         })
             .transform(val => parseInt(val, 10))
             .optional(),
-        tags: Zod.string({
-            invalid_type_error: 'tags 参数错误'
+        animes: Zod.string({
+            invalid_type_error: 'animes 参数错误'
         })
             .max(255, {
-                message: 'tags 参数错误'
+                message: 'animes 参数错误'
             })
             .array()
             .optional()

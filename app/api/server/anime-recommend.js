@@ -50,7 +50,7 @@ router.patch(
     `/${PATH}/:id`,
     auth([ADMIN, `${PATH}:${PERM.EDIT}`]),
     async ctx => {
-        const params = AnimeRecommendListValidator(
+        const params = AnimeRecommendEditValidator(
             Object.assign(ctx.params, ctx.request.body)
         );
         const data = await AnimeRecommendService.edit(params);
