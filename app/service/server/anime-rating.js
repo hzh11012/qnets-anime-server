@@ -30,16 +30,16 @@ class AnimeRatingService {
         page = 1,
         pageSize = 10,
         keyword,
-        type = 'userName',
+        type = 'nickname',
         order = 'DESC',
         orderBy = 'createdAt'
     }) {
         try {
             let where = {};
 
-            if (type === 'userName') {
+            if (type === 'nickname') {
                 where.user = {
-                    name: keyword ? {contains: keyword} : undefined
+                    nickname: keyword ? {contains: keyword} : undefined
                 };
             } else if (type === 'animeName') {
                 where.anime = {
@@ -57,7 +57,7 @@ class AnimeRatingService {
                 where,
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
-                    user: {select: {username: true}},
+                    user: {select: {nickname: true, email: true}},
                     anime: {select: {name: true, coverUrl: true}}
                 },
                 omit: {updatedAt: true}

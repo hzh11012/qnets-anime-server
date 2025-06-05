@@ -9,7 +9,7 @@ const {
 const AnimeRatingListValidator = parameter => {
     const schema = Zod.object({
         ...commonList,
-        type: Zod.enum(['userName', 'content', 'animeName'], {
+        type: Zod.enum(['nickname', 'content', 'animeName'], {
             message: 'type 参数错误'
         }).optional(),
         orderBy: Zod.enum(['createdAt', 'updatedAt', 'score'], {
