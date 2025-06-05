@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const {Resolve} = require('@core/http-exception');
-const MessageService = require('@service/message');
+const MessageService = require('@service/server/message');
 const auth = require('@middleware/auth');
 const {SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {

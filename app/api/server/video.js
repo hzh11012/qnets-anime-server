@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const {Resolve} = require('@core/http-exception');
-const VideoService = require('@service/video');
+const VideoService = require('@service/server/video');
 const auth = require('@middleware/auth');
 const {SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {

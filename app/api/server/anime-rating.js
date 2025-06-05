@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const {Resolve} = require('@core/http-exception');
-const AnimeRatingService = require('@service/anime-rating');
+const AnimeRatingService = require('@service/server/anime-rating');
 const auth = require('@middleware/auth');
 const {SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {
