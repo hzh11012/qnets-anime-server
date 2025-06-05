@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const {Resolve} = require('@core/http-exception');
 const UserService = require('@service/server/user');
 const auth = require('@middleware/auth');
-const {SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
+const {PREFIX, SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {
     UserListValidator,
     UserEditValidator
@@ -10,7 +10,7 @@ const {
 const res = new Resolve();
 
 const router = new Router({
-    prefix: SERVER_PREFIX
+    prefix: `${PREFIX}/${SERVER_PREFIX}`
 });
 
 const PATH = 'users';
@@ -24,17 +24,21 @@ router.get(`/${PATH}/me`, auth(), async ctx => {
 });
 
 // 用户列表
-router.get(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.VIEW}`]), async ctx => {
-    const params = UserListValidator(ctx.request.query);
-    const list = await UserService.list(params);
-    ctx.status = 200;
-    ctx.body = res.json(list, '用户列表获取成功');
-});
+router.get(
+    `/${PATH}`,
+    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const params = UserListValidator(ctx.request.query);
+        const list = await UserService.list(params);
+        ctx.status = 200;
+        ctx.body = res.json(list, '用户列表获取成功');
+    }
+);
 
 // 用户编辑
 router.patch(
     `/${PATH}/:id`,
-    auth([ADMIN, `${PATH}:${PERM.EDIT}`]),
+    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.EDIT}`]),
     async ctx => {
         const params = UserEditValidator(
             Object.assign(ctx.params, ctx.request.body)

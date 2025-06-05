@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const {Resolve} = require('@core/http-exception');
 const AnimeService = require('@service/server/anime');
 const auth = require('@middleware/auth');
-const {SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
+const {PREFIX, SERVER_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {
     AnimeCreateValidator,
     AnimeListValidator,
@@ -12,23 +12,27 @@ const {
 const res = new Resolve();
 
 const router = new Router({
-    prefix: SERVER_PREFIX
+    prefix: `${PREFIX}/${SERVER_PREFIX}`
 });
 
 const PATH = 'anime';
 
 // 动漫创建
-router.post(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.CREATE}`]), async ctx => {
-    const params = AnimeCreateValidator(ctx.request.body);
-    await AnimeService.create(params);
-    ctx.status = 201;
-    ctx.body = res.success('动漫创建成功');
-});
+router.post(
+    `/${PATH}`,
+    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.CREATE}`]),
+    async ctx => {
+        const params = AnimeCreateValidator(ctx.request.body);
+        await AnimeService.create(params);
+        ctx.status = 201;
+        ctx.body = res.success('动漫创建成功');
+    }
+);
 
 // 动漫删除
 router.delete(
     `/${PATH}/:id`,
-    auth([ADMIN, `${PATH}:${PERM.DELETE}`]),
+    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.DELETE}`]),
     async ctx => {
         const params = AnimeDeleteValidator(ctx.params);
         await AnimeService.delete(params);
@@ -38,17 +42,21 @@ router.delete(
 );
 
 // 动漫列表
-router.get(`/${PATH}`, auth([ADMIN, `${PATH}:${PERM.VIEW}`]), async ctx => {
-    const params = AnimeListValidator(ctx.request.query);
-    const list = await AnimeService.list(params);
-    ctx.status = 200;
-    ctx.body = res.json(list, '动漫列表获取成功');
-});
+router.get(
+    `/${PATH}`,
+    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const params = AnimeListValidator(ctx.request.query);
+        const list = await AnimeService.list(params);
+        ctx.status = 200;
+        ctx.body = res.json(list, '动漫列表获取成功');
+    }
+);
 
 // 动漫编辑
 router.patch(
     `/${PATH}/:id`,
-    auth([ADMIN, `${PATH}:${PERM.EDIT}`]),
+    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.EDIT}`]),
     async ctx => {
         const params = AnimeEditValidator(
             Object.assign(ctx.params, ctx.request.body)
@@ -62,7 +70,7 @@ router.patch(
 // 动漫选项
 router.get(
     `/${PATH}/options`,
-    auth([ADMIN, `${PATH}:${PERM.VIEW}`]),
+    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.VIEW}`]),
     async ctx => {
         const options = await AnimeService.options();
         ctx.status = 200;
