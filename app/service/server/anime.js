@@ -115,11 +115,42 @@ class AnimeService {
                         : undefined
                 },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
-                include: {animeTags: {select: {id: true, name: true}}},
+                include: {
+                    animeTags: {select: {id: true, name: true}},
+                    _count: {select: {animeCollections: true}},
+                    animeRatings: {select: {score: true}}
+                },
                 omit: {updatedAt: true}
             };
 
-            return await AnimeDao.list(params);
+            const {rows, total} = await AnimeDao.list(params);
+
+            // 处理每个动漫的评分和收藏数据
+            const processedRows = rows.map(anime => {
+                const {animeRatings, _count, ...rest} = anime;
+
+                // 计算平均评分
+                const totalScore = animeRatings.reduce(
+                    (sum, rating) => sum + rating.score,
+                    0
+                );
+                const averageScore =
+                    animeRatings.length > 0
+                        ? Number((totalScore / animeRatings.length).toFixed(1))
+                        : 0;
+
+                return {
+                    ...rest,
+                    collectionCount: _count.animeCollections,
+                    ratingCount: animeRatings.length,
+                    averageScore
+                };
+            });
+
+            return {
+                rows: processedRows,
+                total
+            };
         } catch (error) {
             throw error;
         }
