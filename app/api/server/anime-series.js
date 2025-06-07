@@ -53,14 +53,10 @@ router.get(
 );
 
 // 动漫系列选项
-router.get(
-    `/${PATH}/options`,
-    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.VIEW}`]),
-    async ctx => {
-        const options = await AnimeSeriesService.options();
-        ctx.status = 200;
-        ctx.body = res.json(options, '动漫系列选项获取成功');
-    }
-);
+router.get(`/${PATH}/options`, auth(), async ctx => {
+    const options = await AnimeSeriesService.options();
+    ctx.status = 200;
+    ctx.body = res.json(options, '动漫系列选项获取成功');
+});
 
 module.exports = router;

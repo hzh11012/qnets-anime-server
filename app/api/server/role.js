@@ -68,14 +68,10 @@ router.patch(
 );
 
 // 角色选项
-router.get(
-    `/${PATH}/options`,
-    auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.VIEW}`]),
-    async ctx => {
-        const options = await RoleService.options();
-        ctx.status = 200;
-        ctx.body = res.json(options, '角色选项获取成功');
-    }
-);
+router.get(`/${PATH}/options`, auth(), async ctx => {
+    const options = await RoleService.options();
+    ctx.status = 200;
+    ctx.body = res.json(options, '角色选项获取成功');
+});
 
 module.exports = router;
