@@ -38,7 +38,7 @@ model Role {
     /// 角色ID
     id   String @id @default(ulid())
     /// 角色名称
-    name String @db.VarChar(10)
+    name String @db.VarChar(25)
     /// 角色编码
     role String @unique @db.VarChar(50)
 
@@ -60,7 +60,7 @@ model Permission {
     /// 权限ID
     id         String @id @default(ulid())
     /// 权限名称
-    name       String @db.VarChar(10)
+    name       String @db.VarChar(25)
     /// 权限编码
     permission String @unique @db.VarChar(50)
 
