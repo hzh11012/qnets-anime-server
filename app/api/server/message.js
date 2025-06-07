@@ -22,7 +22,7 @@ router.delete(
     auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.DELETE}`]),
     async ctx => {
         const params = MessageDeleteValidator(ctx.params);
-        await RoleService.delete(params);
+        await MessageService.delete(params);
         ctx.status = 200;
         ctx.body = res.success('留言删除成功');
     }

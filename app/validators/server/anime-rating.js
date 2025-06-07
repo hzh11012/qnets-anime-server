@@ -22,7 +22,7 @@ const AnimeRatingListValidator = parameter => {
 const AnimeRatingEditValidator = parameter => {
     const editSchema = {
         score: Zod.enum(['1', '2', '3', '4', '5'], {
-            message: 'updateDay 参数错误'
+            message: 'score 参数错误'
         })
             .transform(val => parseInt(val, 10))
             .optional(),

@@ -1,0 +1,20 @@
+/// 公告模型
+model Notice {
+    /// 公告ID
+    id      String @id @default(ulid())
+    /// 公告标题
+    title   String @db.VarChar(50)
+    /// 公告内容
+    content String @db.VarChar(2500)
+    /// 公告状态 0-未发布 1-已发布
+    status  Int    @db.UnsignedTinyInt
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    @@index([title])
+    @@index([status])
+    @@index([createdAt])
+}

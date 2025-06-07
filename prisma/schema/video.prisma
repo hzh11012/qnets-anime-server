@@ -26,6 +26,7 @@ model Video {
     @@unique([animeId, episode])
     @@index([episode])
     @@index([playCount])
+    @@index([createdAt])
 }
 
 /// 视频评论模型

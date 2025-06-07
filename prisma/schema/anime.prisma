@@ -56,6 +56,7 @@ model Anime {
     @@index([type])
     @@index([year])
     @@index([month])
+    @@index([createdAt])
 }
 
 /// 动漫系列模型
@@ -74,6 +75,7 @@ model AnimeSeries {
     animes Anime[]
 
     @@index([name])
+    @@index([createdAt])
 }
 
 /// 动漫轮播模型
@@ -90,6 +92,8 @@ model AnimeBanner {
     anime   Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
     /// 动漫ID
     animeId String @unique
+
+    @@index([createdAt])
 }
 
 /// 新番导视模型
@@ -109,6 +113,10 @@ model AnimeGuide {
     anime   Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
     /// 动漫ID
     animeId String @unique
+
+    @@index([updateDay])
+    @@index([updateTime])
+    @@index([createdAt])
 }
 
 /// 动漫推荐模型
@@ -129,6 +137,8 @@ model AnimeRecommend {
     animes Anime[]
 
     @@index([name])
+    @@index([status])
+    @@index([createdAt])
 }
 
 /// 动漫评分模型
@@ -157,6 +167,7 @@ model AnimeRating {
 
     @@unique([userId, animeId])
     @@index([score])
+    @@index([createdAt])
 }
 
 /// 动漫分类模型
@@ -173,6 +184,9 @@ model AnimeTag {
 
     /// n-n 动漫
     animes Anime[]
+
+    @@index([name])
+    @@index([createdAt])
 }
 
 /// 动漫收藏模型

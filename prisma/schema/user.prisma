@@ -28,12 +28,9 @@ model User {
     videoComments     VideoComment[]
     /// 1-n 评论点赞
     videoCommentLikes VideoCommentLike[]
-    /// 1-n 通知
-    notifications     Notification[]
-    /// 1-n 用户通知状态
-    userNotifications UserNotification[]
 
     @@index([status])
+    @@index([createdAt])
 }
 
 /// 角色模型
@@ -54,6 +51,8 @@ model Role {
     permissions Permission[]
     /// n-n 用户
     users       User[]
+
+    @@index([createdAt])
 }
 
 /// 权限模型
@@ -72,6 +71,8 @@ model Permission {
 
     /// n-n 权限
     roles Role[]
+
+    @@index([createdAt])
 }
 
 /// 留言模型
@@ -99,4 +100,5 @@ model Message {
 
     @@index(type)
     @@index(status)
+    @@index([createdAt])
 }

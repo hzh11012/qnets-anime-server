@@ -22,6 +22,7 @@ CREATE TABLE `Anime` (
     INDEX `Anime_type_idx`(`type`),
     INDEX `Anime_year_idx`(`year`),
     INDEX `Anime_month_idx`(`month`),
+    INDEX `Anime_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -34,6 +35,7 @@ CREATE TABLE `AnimeSeries` (
 
     UNIQUE INDEX `AnimeSeries_name_key`(`name`),
     INDEX `AnimeSeries_name_idx`(`name`),
+    INDEX `AnimeSeries_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -45,6 +47,7 @@ CREATE TABLE `AnimeBanner` (
     `animeId` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `AnimeBanner_animeId_key`(`animeId`),
+    INDEX `AnimeBanner_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -58,6 +61,9 @@ CREATE TABLE `AnimeGuide` (
     `animeId` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `AnimeGuide_animeId_key`(`animeId`),
+    INDEX `AnimeGuide_updateDay_idx`(`updateDay`),
+    INDEX `AnimeGuide_updateTime_idx`(`updateTime`),
+    INDEX `AnimeGuide_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -70,6 +76,8 @@ CREATE TABLE `AnimeRecommend` (
     `updatedAt` DATETIME(3) NOT NULL,
 
     INDEX `AnimeRecommend_name_idx`(`name`),
+    INDEX `AnimeRecommend_status_idx`(`status`),
+    INDEX `AnimeRecommend_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -84,6 +92,7 @@ CREATE TABLE `AnimeRating` (
     `animeId` VARCHAR(191) NOT NULL,
 
     INDEX `AnimeRating_score_idx`(`score`),
+    INDEX `AnimeRating_createdAt_idx`(`createdAt`),
     UNIQUE INDEX `AnimeRating_userId_animeId_key`(`userId`, `animeId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -96,6 +105,8 @@ CREATE TABLE `AnimeTag` (
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `AnimeTag_name_key`(`name`),
+    INDEX `AnimeTag_name_idx`(`name`),
+    INDEX `AnimeTag_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -113,31 +124,17 @@ CREATE TABLE `AnimeCollection` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Notification` (
+CREATE TABLE `Notice` (
     `id` VARCHAR(191) NOT NULL,
-    `type` TINYINT UNSIGNED NOT NULL,
     `title` VARCHAR(50) NOT NULL,
     `content` VARCHAR(2500) NOT NULL,
+    `status` TINYINT UNSIGNED NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
 
-    INDEX `Notification_type_idx`(`type`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `UserNotification` (
-    `id` VARCHAR(191) NOT NULL,
-    `isRead` BOOLEAN NOT NULL DEFAULT false,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
-    `notificationId` VARCHAR(191) NOT NULL,
-
-    INDEX `UserNotification_isRead_idx`(`isRead`),
-    INDEX `UserNotification_createdAt_idx`(`createdAt`),
-    UNIQUE INDEX `UserNotification_userId_notificationId_key`(`userId`, `notificationId`),
+    INDEX `Notice_title_idx`(`title`),
+    INDEX `Notice_status_idx`(`status`),
+    INDEX `Notice_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -153,6 +150,7 @@ CREATE TABLE `User` (
 
     UNIQUE INDEX `User_email_key`(`email`),
     INDEX `User_status_idx`(`status`),
+    INDEX `User_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -165,6 +163,7 @@ CREATE TABLE `Role` (
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Role_role_key`(`role`),
+    INDEX `Role_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -177,6 +176,7 @@ CREATE TABLE `Permission` (
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Permission_permission_key`(`permission`),
+    INDEX `Permission_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -193,6 +193,7 @@ CREATE TABLE `Message` (
 
     INDEX `Message_type_idx`(`type`),
     INDEX `Message_status_idx`(`status`),
+    INDEX `Message_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -209,6 +210,7 @@ CREATE TABLE `Video` (
 
     INDEX `Video_episode_idx`(`episode`),
     INDEX `Video_playCount_idx`(`playCount`),
+    INDEX `Video_createdAt_idx`(`createdAt`),
     UNIQUE INDEX `Video_animeId_episode_key`(`animeId`, `episode`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -301,15 +303,6 @@ ALTER TABLE `AnimeCollection` ADD CONSTRAINT `AnimeCollection_userId_fkey` FOREI
 
 -- AddForeignKey
 ALTER TABLE `AnimeCollection` ADD CONSTRAINT `AnimeCollection_animeId_fkey` FOREIGN KEY (`animeId`) REFERENCES `Anime`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Notification` ADD CONSTRAINT `Notification_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `UserNotification` ADD CONSTRAINT `UserNotification_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `UserNotification` ADD CONSTRAINT `UserNotification_notificationId_fkey` FOREIGN KEY (`notificationId`) REFERENCES `Notification`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Message` ADD CONSTRAINT `Message_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
