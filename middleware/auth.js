@@ -1,5 +1,10 @@
 const prisma = require('@core/prisma');
-const {AuthFailed, NotFound, HttpException} = require('@core/http-exception');
+const {
+    AuthFailed,
+    Forbidden,
+    NotFound,
+    HttpException
+} = require('@core/http-exception');
 const {got} = require('got-cjs');
 const redis = require('@core/redis');
 const {parseTime} = require('@core/utils');
@@ -73,7 +78,7 @@ const auth = requiredPermissions => {
                         : requiredPermissions;
 
                 if (!_requiredPermissions.some(p => permissions.includes(p)))
-                    throw new AuthFailed('权限不足');
+                    throw new Forbidden('权限不足');
             }
 
             ctx.auth = {email};
