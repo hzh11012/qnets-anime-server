@@ -16,7 +16,7 @@ const PERM = Object.freeze({
 const USER_PERMISSIONS = [
     {
         name: '后台页面：用户',
-        permission: `${SERVER_PREFIX}:users`
+        permission: `${SERVER_PREFIX}:user`
     },
     {
         name: '后台接口：用户编辑',
@@ -31,7 +31,7 @@ const USER_PERMISSIONS = [
 const ROLE_PERMISSIONS = [
     {
         name: '后台页面：角色',
-        permission: `${SERVER_PREFIX}:roles`
+        permission: `${SERVER_PREFIX}:role`
     },
     {
         name: '后台接口：角色创建',
@@ -54,7 +54,7 @@ const ROLE_PERMISSIONS = [
 const PERMISSION_PERMISSIONS = [
     {
         name: '后台页面：权限',
-        permission: `${SERVER_PREFIX}:permissions`
+        permission: `${SERVER_PREFIX}:permission`
     },
     {
         name: '后台接口：权限创建',
@@ -73,7 +73,7 @@ const PERMISSION_PERMISSIONS = [
 const COLLECTION_PERMISSIONS = [
     {
         name: '后台页面：收藏',
-        permission: `${SERVER_PREFIX}:anime-collections`
+        permission: `${SERVER_PREFIX}:collection`
     },
     {
         name: '后台接口：动漫收藏删除',
@@ -88,7 +88,7 @@ const COLLECTION_PERMISSIONS = [
 const RATING_PERMISSIONS = [
     {
         name: '后台页面：评分',
-        permission: `${SERVER_PREFIX}:anime-ratings`
+        permission: `${SERVER_PREFIX}:rating`
     },
     {
         name: '后台接口：动漫评分删除',
@@ -107,7 +107,7 @@ const RATING_PERMISSIONS = [
 const MESSAGE_PERMISSIONS = [
     {
         name: '后台页面：平台留言',
-        permission: `${SERVER_PREFIX}:messages`
+        permission: `${SERVER_PREFIX}:message`
     },
     {
         name: '后台接口：留言删除',
@@ -126,7 +126,7 @@ const MESSAGE_PERMISSIONS = [
 const BANNER_PERMISSIONS = [
     {
         name: '后台页面：站点轮播',
-        permission: `${SERVER_PREFIX}:anime-banners`
+        permission: `${SERVER_PREFIX}:banner`
     },
     {
         name: '后台接口：动漫轮播创建',
@@ -145,7 +145,7 @@ const BANNER_PERMISSIONS = [
 const GUIDE_PERMISSIONS = [
     {
         name: '后台页面：新番导视',
-        permission: `${SERVER_PREFIX}:anime-guides`
+        permission: `${SERVER_PREFIX}:guide`
     },
     {
         name: '后台接口：新番导视创建',
@@ -168,7 +168,7 @@ const GUIDE_PERMISSIONS = [
 const RECOMMEND_PERMISSIONS = [
     {
         name: '后台页面：每周推荐',
-        permission: `${SERVER_PREFIX}:anime-recommends`
+        permission: `${SERVER_PREFIX}:recommend`
     },
     {
         name: '后台接口：动漫推荐创建',
@@ -191,7 +191,7 @@ const RECOMMEND_PERMISSIONS = [
 const SERIES_PERMISSIONS = [
     {
         name: '后台页面：系列',
-        permission: `${SERVER_PREFIX}:anime-series`
+        permission: `${SERVER_PREFIX}:series`
     },
     {
         name: '后台接口：动漫系列创建',
@@ -210,7 +210,7 @@ const SERIES_PERMISSIONS = [
 const ANIME_PERMISSIONS = [
     {
         name: '后台页面：动漫',
-        permission: `${SERVER_PREFIX}:animes`
+        permission: `${SERVER_PREFIX}:anime`
     },
     {
         name: '后台接口：动漫创建',
@@ -233,7 +233,7 @@ const ANIME_PERMISSIONS = [
 const VIDEO_PERMISSIONS = [
     {
         name: '后台页面：视频',
-        permission: `${SERVER_PREFIX}:videos`
+        permission: `${SERVER_PREFIX}:video`
     },
     {
         name: '后台接口：视频创建',
@@ -256,7 +256,7 @@ const VIDEO_PERMISSIONS = [
 const TAG_PERMISSIONS = [
     {
         name: '后台页面：分类',
-        permission: `${SERVER_PREFIX}:videos`
+        permission: `${SERVER_PREFIX}:tag`
     },
     {
         name: '后台接口：动漫分类创建',
@@ -275,7 +275,7 @@ const TAG_PERMISSIONS = [
 const NOTICE_PERMISSIONS = [
     {
         name: '后台页面：系统公告',
-        permission: `${SERVER_PREFIX}:notices`
+        permission: `${SERVER_PREFIX}:notice`
     },
     {
         name: '后台接口：公告创建',
