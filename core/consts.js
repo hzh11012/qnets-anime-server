@@ -6,6 +6,8 @@ const SERVER_PREFIX = 'server';
 
 const ADMIN = 'admin:all';
 
+const DEFAULT_USER = '917944345@qq.com';
+
 const PERM = Object.freeze({
     CREATE: 'create',
     VIEW: 'view',
@@ -326,5 +328,6 @@ module.exports = {
     SERVER_PREFIX,
     ADMIN,
     PERM,
+    DEFAULT_USER,
     INIT_PERMISSIONS
 };

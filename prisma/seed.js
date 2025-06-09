@@ -1,7 +1,7 @@
 require('module-alias/register');
 
 const prisma = require('@core/prisma');
-const {INIT_PERMISSIONS, ADMIN} = require('@core/consts');
+const {INIT_PERMISSIONS, ADMIN, DEFAULT_USER} = require('@core/consts');
 
 async function main() {
     // 创建默认权限
@@ -23,10 +23,10 @@ async function main() {
 
     // 创建默认用户
     await prisma.user.upsert({
-        where: {email: '917944345@qq.com'},
+        where: {email: DEFAULT_USER},
         update: {},
         create: {
-            email: '917944345@qq.com',
+            email: DEFAULT_USER,
             nickname: 'Qnets',
             roles: {connect: [{role: 'admin'}]}
         }
