@@ -36,7 +36,7 @@ class VideoService {
      */
     static async delete({id}) {
         try {
-            // 检查新番导视是否存在
+            // 检查视频是否存在
             const existing = await VideoDao.findById(id);
             if (!existing) throw new NotFound('视频不存在');
 
