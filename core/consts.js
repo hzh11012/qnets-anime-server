@@ -15,6 +15,47 @@ const PERM = Object.freeze({
     DELETE: 'delete'
 });
 
+const INIT_ANIME_TAGS = [
+    {name: '原创'},
+    {name: '漫画改'},
+    {name: '小说改'},
+    {name: '游戏改'},
+    {name: '特摄'},
+    {name: '布袋戏'},
+    {name: '热血'},
+    {name: '穿越'},
+    {name: '奇幻'},
+    {name: '战斗'},
+    {name: '搞笑'},
+    {name: '日常'},
+    {name: '科幻'},
+    {name: '萌系'},
+    {name: '治愈'},
+    {name: '校园'},
+    {name: '少儿'},
+    {name: '泡面'},
+    {name: '恋爱'},
+    {name: '少女'},
+    {name: '魔法'},
+    {name: '冒险'},
+    {name: '历史'},
+    {name: '架空'},
+    {name: '机战'},
+    {name: '神魔'},
+    {name: '声控'},
+    {name: '运动'},
+    {name: '励志'},
+    {name: '音乐'},
+    {name: '推理'},
+    {name: '社团'},
+    {name: '智斗'},
+    {name: '催泪'},
+    {name: '美食'},
+    {name: '偶像'},
+    {name: '乙女'},
+    {name: '职场'}
+];
+
 const USER_PERMISSIONS = [
     {
         name: '后台页面：用户',
@@ -389,5 +430,6 @@ module.exports = {
     ADMIN,
     PERM,
     DEFAULT_USER,
-    INIT_PERMISSIONS
+    INIT_PERMISSIONS,
+    INIT_ANIME_TAGS
 };
