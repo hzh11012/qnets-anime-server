@@ -77,7 +77,8 @@ class UserService {
             const existing = await UserDao.findById(id);
             if (!existing) throw new NotFound('用户不存在');
 
-            if (existing.email === email) throw new Forbidden('禁止编辑自身');
+            if (existing.email === email && existing.status !== status)
+                throw new Forbidden('禁止编辑自身状态');
 
             let data = {nickname, avatar, status};
 

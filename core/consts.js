@@ -268,7 +268,8 @@ const ANIME_PERMISSIONS = [
     },
     {
         name: '后台接口：动漫编辑',
-        permission: `${SERVER_PREFIX}:animes:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:animes:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：动漫查询',
