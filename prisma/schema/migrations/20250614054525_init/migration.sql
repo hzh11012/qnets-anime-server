@@ -172,6 +172,7 @@ CREATE TABLE `Permission` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(25) NOT NULL,
     `permission` VARCHAR(50) NOT NULL,
+    `system` TINYINT UNSIGNED NOT NULL DEFAULT 0,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 

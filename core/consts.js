@@ -18,209 +18,253 @@ const PERM = Object.freeze({
 const USER_PERMISSIONS = [
     {
         name: '后台页面：用户',
-        permission: `${SERVER_PREFIX}:user`
+        permission: `${SERVER_PREFIX}:user`,
+        system: 1
     },
     {
         name: '后台接口：用户编辑',
-        permission: `${SERVER_PREFIX}:users:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:users:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：用户查询',
-        permission: `${SERVER_PREFIX}:users:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:users:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const ROLE_PERMISSIONS = [
     {
         name: '后台页面：角色',
-        permission: `${SERVER_PREFIX}:role`
+        permission: `${SERVER_PREFIX}:role`,
+        system: 1
     },
     {
         name: '后台接口：角色创建',
-        permission: `${SERVER_PREFIX}:roles:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:roles:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：角色删除',
-        permission: `${SERVER_PREFIX}:roles:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:roles:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：角色编辑',
-        permission: `${SERVER_PREFIX}:roles:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:roles:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：角色查询',
-        permission: `${SERVER_PREFIX}:roles:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:roles:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const PERMISSION_PERMISSIONS = [
     {
         name: '后台页面：权限',
-        permission: `${SERVER_PREFIX}:permission`
+        permission: `${SERVER_PREFIX}:permission`,
+        system: 1
     },
     {
         name: '后台接口：权限创建',
-        permission: `${SERVER_PREFIX}:permissions:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:permissions:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：权限删除',
-        permission: `${SERVER_PREFIX}:permissions:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:permissions:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：权限查询',
-        permission: `${SERVER_PREFIX}:permissions:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:permissions:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const COLLECTION_PERMISSIONS = [
     {
         name: '后台页面：收藏',
-        permission: `${SERVER_PREFIX}:collection`
+        permission: `${SERVER_PREFIX}:collection`,
+        system: 1
     },
     {
         name: '后台接口：动漫收藏删除',
-        permission: `${SERVER_PREFIX}:anime-collections:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:anime-collections:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫收藏查询',
-        permission: `${SERVER_PREFIX}:anime-collections:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:anime-collections:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const RATING_PERMISSIONS = [
     {
         name: '后台页面：评分',
-        permission: `${SERVER_PREFIX}:rating`
+        permission: `${SERVER_PREFIX}:rating`,
+        system: 1
     },
     {
         name: '后台接口：动漫评分删除',
-        permission: `${SERVER_PREFIX}:anime-ratings:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:anime-ratings:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫评分编辑',
-        permission: `${SERVER_PREFIX}:anime-ratings:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:anime-ratings:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：动漫评分查询',
-        permission: `${SERVER_PREFIX}:anime-ratings:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:anime-ratings:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const MESSAGE_PERMISSIONS = [
     {
         name: '后台页面：平台留言',
-        permission: `${SERVER_PREFIX}:message`
+        permission: `${SERVER_PREFIX}:message`,
+        system: 1
     },
     {
         name: '后台接口：留言删除',
-        permission: `${SERVER_PREFIX}:messages:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:messages:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：留言编辑',
-        permission: `${SERVER_PREFIX}:messages:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:messages:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：留言查询',
-        permission: `${SERVER_PREFIX}:messages:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:messages:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const BANNER_PERMISSIONS = [
     {
         name: '后台页面：站点轮播',
-        permission: `${SERVER_PREFIX}:banner`
+        permission: `${SERVER_PREFIX}:banner`,
+        system: 1
     },
     {
         name: '后台接口：动漫轮播创建',
-        permission: `${SERVER_PREFIX}:anime-banners:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:anime-banners:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫轮播删除',
-        permission: `${SERVER_PREFIX}:anime-banners:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:anime-banners:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫轮播查询',
-        permission: `${SERVER_PREFIX}:anime-banners:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:anime-banners:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const GUIDE_PERMISSIONS = [
     {
         name: '后台页面：新番导视',
-        permission: `${SERVER_PREFIX}:guide`
+        permission: `${SERVER_PREFIX}:guide`,
+        system: 1
     },
     {
         name: '后台接口：新番导视创建',
-        permission: `${SERVER_PREFIX}:anime-guides:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:anime-guides:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：新番导视删除',
-        permission: `${SERVER_PREFIX}:anime-guides:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:anime-guides:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：新番导视编辑',
-        permission: `${SERVER_PREFIX}:anime-guides:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:anime-guides:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：新番导视查询',
-        permission: `${SERVER_PREFIX}:anime-guides:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:anime-guides:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const RECOMMEND_PERMISSIONS = [
     {
         name: '后台页面：每周推荐',
-        permission: `${SERVER_PREFIX}:recommend`
+        permission: `${SERVER_PREFIX}:recommend`,
+        system: 1
     },
     {
         name: '后台接口：动漫推荐创建',
-        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫推荐删除',
-        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫推荐编辑',
-        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：动漫推荐查询',
-        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const SERIES_PERMISSIONS = [
     {
         name: '后台页面：系列',
-        permission: `${SERVER_PREFIX}:series`
+        permission: `${SERVER_PREFIX}:series`,
+        system: 1
     },
     {
         name: '后台接口：动漫系列创建',
-        permission: `${SERVER_PREFIX}:anime-series:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:anime-series:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫系列删除',
-        permission: `${SERVER_PREFIX}:anime-series:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:anime-series:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫系列查询',
-        permission: `${SERVER_PREFIX}:anime-series:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:anime-series:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const ANIME_PERMISSIONS = [
     {
         name: '后台页面：动漫',
-        permission: `${SERVER_PREFIX}:anime`
+        permission: `${SERVER_PREFIX}:anime`,
+        system: 1
     },
     {
         name: '后台接口：动漫创建',
-        permission: `${SERVER_PREFIX}:animes:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:animes:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫删除',
-        permission: `${SERVER_PREFIX}:animes:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:animes:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫编辑',
@@ -228,72 +272,87 @@ const ANIME_PERMISSIONS = [
     },
     {
         name: '后台接口：动漫查询',
-        permission: `${SERVER_PREFIX}:animes:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:animes:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const VIDEO_PERMISSIONS = [
     {
         name: '后台页面：视频',
-        permission: `${SERVER_PREFIX}:video`
+        permission: `${SERVER_PREFIX}:video`,
+        system: 1
     },
     {
         name: '后台接口：视频创建',
-        permission: `${SERVER_PREFIX}:videos:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:videos:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：视频删除',
-        permission: `${SERVER_PREFIX}:videos:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:videos:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：视频编辑',
-        permission: `${SERVER_PREFIX}:videos:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:videos:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：视频查询',
-        permission: `${SERVER_PREFIX}:videos:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:videos:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const TAG_PERMISSIONS = [
     {
         name: '后台页面：分类',
-        permission: `${SERVER_PREFIX}:tag`
+        permission: `${SERVER_PREFIX}:tag`,
+        system: 1
     },
     {
         name: '后台接口：动漫分类创建',
-        permission: `${SERVER_PREFIX}:anime-tags:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:anime-tags:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫分类删除',
-        permission: `${SERVER_PREFIX}:anime-tags:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:anime-tags:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：动漫分类查询',
-        permission: `${SERVER_PREFIX}:anime-tags:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:anime-tags:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
 const NOTICE_PERMISSIONS = [
     {
         name: '后台页面：系统公告',
-        permission: `${SERVER_PREFIX}:notice`
+        permission: `${SERVER_PREFIX}:notice`,
+        system: 1
     },
     {
         name: '后台接口：公告创建',
-        permission: `${SERVER_PREFIX}:notices:${PERM.CREATE}`
+        permission: `${SERVER_PREFIX}:notices:${PERM.CREATE}`,
+        system: 1
     },
     {
         name: '后台接口：公告删除',
-        permission: `${SERVER_PREFIX}:notices:${PERM.DELETE}`
+        permission: `${SERVER_PREFIX}:notices:${PERM.DELETE}`,
+        system: 1
     },
     {
         name: '后台接口：公告删除',
-        permission: `${SERVER_PREFIX}:notices:${PERM.EDIT}`
+        permission: `${SERVER_PREFIX}:notices:${PERM.EDIT}`,
+        system: 1
     },
     {
         name: '后台接口：公告查询',
-        permission: `${SERVER_PREFIX}:notices:${PERM.VIEW}`
+        permission: `${SERVER_PREFIX}:notices:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
@@ -319,7 +378,7 @@ const INIT_CLIENT_PERMISSIONS = [];
 const INIT_PERMISSIONS = [
     ...INIT_SERVER_PERMISSIONS,
     ...INIT_CLIENT_PERMISSIONS,
-    {name: '所有权限', permission: ADMIN}
+    {name: '所有权限', permission: ADMIN, system: 1}
 ];
 
 module.exports = {

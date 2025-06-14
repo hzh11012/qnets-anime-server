@@ -1,5 +1,6 @@
 const RoleDao = require('@dao/role');
 const UserDao = require('@dao/user');
+const {NotFound, Forbidden} = require('@core/http-exception');
 
 class UserService {
     /**
@@ -69,11 +70,14 @@ class UserService {
      * @param {string} avatar 用户头像
      * @param {number} status 用户状态
      * @param {string[]} roles 角色
+     * @param {string} email 当前用户email
      */
-    static async edit({id, nickname, avatar, status, roles}) {
+    static async edit({id, nickname, avatar, status, roles, email}) {
         try {
             const existing = await UserDao.findById(id);
             if (!existing) throw new NotFound('用户不存在');
+
+            if (existing.email === email) throw new Forbidden('禁止编辑自身');
 
             let data = {nickname, avatar, status};
 

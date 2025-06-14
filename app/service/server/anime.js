@@ -79,11 +79,11 @@ class AnimeService {
      * @param {number} pageSize - 每页数量 [可选]
      * @param {string} keyword - 搜索关键词 [可选]
      * @param {string} type - 搜索类型 [可选]
-     * @param {number[]} status - 动漫状态 0-即将上线 1-连载中 2-已完结
-     * @param {number[]} types - 动漫类型 0-剧场版 1-日番 2-美番 3-国番 4-里番
-     * @param {number[]} months - 动漫发行月份 0-一月番 1-四月番 2-七月番 3-十月番
-     * @param {number[]} years - 动漫发行年份 [1970 - 2099]
-     * @param {string[]} tags - 动漫分类ID
+     * @param {number[]} status - 动漫状态 0-即将上线 1-连载中 2-已完结 [可选]
+     * @param {number[]} types - 动漫类型 0-剧场版 1-日番 2-美番 3-国番 4-里番 [可选]
+     * @param {number[]} months - 动漫发行月份 0-一月番 1-四月番 2-七月番 3-十月番 [可选]
+     * @param {number[]} years - 动漫发行年份 [1970 - 2099] [可选]
+     * @param {string[]} tags - 动漫分类ID [可选]
      * @param {string} order - 排序 [可选]
      * @param {string} orderBy - 排序字段 [可选]
      */

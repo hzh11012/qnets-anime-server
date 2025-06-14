@@ -1,5 +1,9 @@
 const Zod = require('zod');
-const {commonList, validate, commonIdValidator} = require('@validators/server/common');
+const {
+    commonList,
+    validate,
+    commonIdValidator
+} = require('@validators/server/common');
 
 const PermissionCreateValidator = parameter => {
     const schema = Zod.object({
@@ -28,7 +32,13 @@ const PermissionListValidator = parameter => {
         ...commonList,
         type: Zod.enum(['name', 'permission'], {
             message: 'type 参数错误'
-        }).optional()
+        }).optional(),
+        systems: Zod.enum(['0', '1'], {
+            message: 'systems 参数错误'
+        })
+            .array()
+            .transform(arr => arr.map(val => parseInt(val, 10)))
+            .optional()
     });
     return validate(schema, parameter);
 };

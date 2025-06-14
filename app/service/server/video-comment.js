@@ -1,5 +1,5 @@
 const VideoCommentDao = require('@dao/video-comment');
-const {NotFound, Existing} = require('@core/http-exception');
+const {NotFound} = require('@core/http-exception');
 
 class VideoCommentService {
     /**

@@ -1,6 +1,6 @@
 const AnimeBannerDao = require('@dao/anime-banner');
-const {NotFound, Existing} = require('@core/http-exception');
 const AnimeDao = require('@dao/anime');
+const {NotFound, Existing} = require('@core/http-exception');
 
 class AnimeBannerService {
     /**

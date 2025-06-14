@@ -1,5 +1,5 @@
 const PermissionDao = require('@dao/permission');
-const {NotFound, Existing} = require('@core/http-exception');
+const {NotFound, Existing, Forbidden} = require('@core/http-exception');
 
 class PermissionService {
     /**
@@ -29,6 +29,7 @@ class PermissionService {
             // 检查权限及其关联
             const existing = await PermissionDao.findByIdWithRelations(id);
             if (!existing) throw new NotFound('权限不存在');
+            if (existing.system) throw new Forbidden('禁止删除系统权限');
             if (existing.roles.length > 0)
                 throw new Existing('无法删除：权限存在关联角色');
 
@@ -44,6 +45,7 @@ class PermissionService {
      * @param {number} pageSize - 每页数量 [可选]
      * @param {string} keyword - 搜索关键词 [可选]
      * @param {string} type - 搜索类型 [可选]
+     * @param {number[]} systems - 是否系统权限 0-否 1-是 [可选]
      * @param {string} order - 排序 [可选]
      * @param {string} orderBy - 排序字段 [可选]
      */
@@ -52,6 +54,7 @@ class PermissionService {
         pageSize = 10,
         keyword,
         type = 'name',
+        systems = [],
         order = 'DESC',
         orderBy = 'createdAt'
     }) {
@@ -59,7 +62,10 @@ class PermissionService {
             const params = {
                 skip: (page - 1) * pageSize,
                 take: pageSize,
-                where: {[type]: {contains: keyword}},
+                where: {
+                    [type]: {contains: keyword},
+                    system: systems.length ? {in: systems} : undefined
+                },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {roles: {select: {name: true}}},
                 omit: {updatedAt: true}

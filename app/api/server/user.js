@@ -43,7 +43,8 @@ router.patch(
         const params = UserEditValidator(
             Object.assign(ctx.params, ctx.request.body)
         );
-        const data = await UserService.edit(params);
+        const {email} = ctx.auth;
+        const data = await UserService.edit({...params, email});
         ctx.status = 201;
         ctx.body = res.json(data, '用户编辑成功');
     }

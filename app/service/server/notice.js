@@ -60,7 +60,7 @@ class NoticeService {
      * @param {number} pageSize - 每页数量 [可选]
      * @param {string} keyword - 搜索关键词 [可选]
      * @param {string} type - 搜索类型 [可选]
-     * @param {number[]} status - 公告状态 0-未发布 1-已发布
+     * @param {number[]} status - 公告状态 0-未发布 1-已发布 [可选]
      * @param {string} order - 排序 [可选]
      * @param {string} orderBy - 排序字段 [可选]
      */

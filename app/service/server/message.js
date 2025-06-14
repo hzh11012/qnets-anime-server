@@ -1,5 +1,5 @@
 const MessageDao = require('@dao/message');
-const {NotFound, Existing} = require('@core/http-exception');
+const {NotFound} = require('@core/http-exception');
 
 class MessageService {
     /**

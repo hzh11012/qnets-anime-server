@@ -1,6 +1,6 @@
-const {NotFound, Existing} = require('@core/http-exception');
 const AnimeDao = require('@dao/anime');
 const AnimeGuideDao = require('@dao/anime-guide');
+const {NotFound, Existing} = require('@core/http-exception');
 
 class AnimeGuideService {
     /**
@@ -49,8 +49,8 @@ class AnimeGuideService {
      * @param {string} keyword - 搜索关键词 [可选]
      * @param {string} type - 搜索类型 [可选]
      * @param {number[]} updateDays - 更新日期 0-6 分别对应周日到周六 [可选]
-     * @param {number[]} status - 动漫状态 0-即将上线 1-连载中 2-已完结
-     * @param {string[]} tags - 动漫分类ID
+     * @param {number[]} status - 动漫状态 0-即将上线 1-连载中 2-已完结 [可选]
+     * @param {string[]} tags - 动漫分类ID [可选]
      * @param {string} order - 排序 [可选]
      * @param {string} orderBy - 排序字段 [可选]
      */
