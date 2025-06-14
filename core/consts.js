@@ -421,6 +421,24 @@ const COMMENT_PERMISSIONS = [
     }
 ];
 
+const DANMAKU_PERMISSIONS = [
+    {
+        name: '后台页面：弹幕',
+        permission: `${SERVER_PREFIX}:danmaku`,
+        system: 1
+    },
+    {
+        name: '后台接口：弹幕删除',
+        permission: `${SERVER_PREFIX}:danmakus:${PERM.DELETE}`,
+        system: 1
+    },
+    {
+        name: '后台接口：弹幕查询',
+        permission: `${SERVER_PREFIX}:danmakus:${PERM.VIEW}`,
+        system: 1
+    }
+];
+
 const INIT_SERVER_PERMISSIONS = [
     ...USER_PERMISSIONS,
     ...ROLE_PERMISSIONS,
@@ -436,7 +454,8 @@ const INIT_SERVER_PERMISSIONS = [
     ...VIDEO_PERMISSIONS,
     ...TAG_PERMISSIONS,
     ...NOTICE_PERMISSIONS,
-    ...COMMENT_PERMISSIONS
+    ...COMMENT_PERMISSIONS,
+    ...DANMAKU_PERMISSIONS
 ];
 
 const INIT_CLIENT_PERMISSIONS = [];

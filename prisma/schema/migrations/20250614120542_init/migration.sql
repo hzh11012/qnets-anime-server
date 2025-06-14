@@ -233,6 +233,7 @@ CREATE TABLE `VideoComment` (
     INDEX `VideoComment_parentId_idx`(`parentId`),
     INDEX `VideoComment_createdAt_idx`(`createdAt`),
     INDEX `VideoComment_likeCount_idx`(`likeCount`),
+    INDEX `VideoComment_replyCount_idx`(`replyCount`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -245,6 +246,25 @@ CREATE TABLE `VideoCommentLike` (
 
     INDEX `VideoCommentLike_createdAt_idx`(`createdAt`),
     UNIQUE INDEX `VideoCommentLike_userId_videoCommentId_key`(`userId`, `videoCommentId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Danmaku` (
+    `id` VARCHAR(191) NOT NULL,
+    `text` VARCHAR(50) NOT NULL,
+    `mode` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    `color` VARCHAR(7) NOT NULL,
+    `time` FLOAT NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `videoId` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+
+    INDEX `Danmaku_videoId_idx`(`videoId`),
+    INDEX `Danmaku_userId_idx`(`userId`),
+    INDEX `Danmaku_time_idx`(`time`),
+    INDEX `Danmaku_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -325,6 +345,12 @@ ALTER TABLE `VideoCommentLike` ADD CONSTRAINT `VideoCommentLike_userId_fkey` FOR
 
 -- AddForeignKey
 ALTER TABLE `VideoCommentLike` ADD CONSTRAINT `VideoCommentLike_videoCommentId_fkey` FOREIGN KEY (`videoCommentId`) REFERENCES `VideoComment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Danmaku` ADD CONSTRAINT `Danmaku_videoId_fkey` FOREIGN KEY (`videoId`) REFERENCES `Video`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Danmaku` ADD CONSTRAINT `Danmaku_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_AnimeToAnimeRecommend` ADD CONSTRAINT `_AnimeToAnimeRecommend_A_fkey` FOREIGN KEY (`A`) REFERENCES `Anime`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
