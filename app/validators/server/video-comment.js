@@ -9,7 +9,7 @@ const {
 const VideoCommentListValidator = parameter => {
     const schema = Zod.object({
         ...commonList,
-        type: Zod.enum(['content', 'nickname'], {
+        type: Zod.enum(['content', 'nickname', 'animeName'], {
             message: 'type 参数错误'
         }).optional(),
         orderBy: Zod.enum(

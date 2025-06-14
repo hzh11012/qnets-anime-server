@@ -40,18 +40,20 @@ class VideoCommentService {
         orderBy = 'createdAt'
     }) {
         try {
-            const where =
-                type === 'nickname'
-                    ? {
-                          user: {
-                              nickname: keyword
-                                  ? {contains: keyword}
-                                  : undefined
-                          }
-                      }
-                    : {
-                          [type]: keyword ? {contains: keyword} : undefined
-                      };
+            let where = {};
+            if (type === 'nickname') {
+                where = {
+                    user: {nickname: keyword ? {contains: keyword} : undefined}
+                };
+            } else if (type === 'animeName') {
+                where = {
+                    video: {
+                        anime: {name: keyword ? {contains: keyword} : undefined}
+                    }
+                };
+            } else {
+                where = {[type]: keyword ? {contains: keyword} : undefined};
+            }
 
             const params = {
                 skip: (page - 1) * pageSize,
@@ -60,13 +62,17 @@ class VideoCommentService {
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
                     user: {select: {nickname: true, avatar: true}},
-                    replies: {
-                        include: {
-                            user: {select: {nickname: true, avatar: true}}
-                        }
-                    }
+                    video: {
+                        select: {episode: true, anime: {select: {name: true}}}
+                    },
+                    parent: {select: {content: true}}
                 },
-                omit: {updatedAt: true}
+                omit: {
+                    updatedAt: true,
+                    userId: true,
+                    videoId: true,
+                    parentId: true
+                }
             };
 
             return await VideoCommentDao.list(params);

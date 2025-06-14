@@ -398,6 +398,29 @@ const NOTICE_PERMISSIONS = [
     }
 ];
 
+const COMMENT_PERMISSIONS = [
+    {
+        name: '后台页面：评论',
+        permission: `${SERVER_PREFIX}:comment`,
+        system: 1
+    },
+    {
+        name: '后台接口：视频评论删除',
+        permission: `${SERVER_PREFIX}:video-comments:${PERM.DELETE}`,
+        system: 1
+    },
+    {
+        name: '后台接口：视频评论编辑',
+        permission: `${SERVER_PREFIX}:video-comments:${PERM.EDIT}`,
+        system: 1
+    },
+    {
+        name: '后台接口：视频评论查询',
+        permission: `${SERVER_PREFIX}:video-comments:${PERM.VIEW}`,
+        system: 1
+    }
+];
+
 const INIT_SERVER_PERMISSIONS = [
     ...USER_PERMISSIONS,
     ...ROLE_PERMISSIONS,
@@ -412,7 +435,8 @@ const INIT_SERVER_PERMISSIONS = [
     ...ANIME_PERMISSIONS,
     ...VIDEO_PERMISSIONS,
     ...TAG_PERMISSIONS,
-    ...NOTICE_PERMISSIONS
+    ...NOTICE_PERMISSIONS,
+    ...COMMENT_PERMISSIONS
 ];
 
 const INIT_CLIENT_PERMISSIONS = [];
