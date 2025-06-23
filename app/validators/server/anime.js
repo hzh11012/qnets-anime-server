@@ -6,7 +6,7 @@ const {
     commonIdValidator
 } = require('@validators/server/common');
 
-const IMAGE_REG = /^(https?:)?\/\/.*\.(jpe?g|png|webp)$/;
+const IMAGE_REG = /^(https?:)?\/\/.*\.(jpe?g|png|webp|avif)$/;
 
 const AnimeCreateValidator = parameter => {
     const schema = Zod.object({

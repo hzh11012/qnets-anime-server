@@ -1,6 +1,6 @@
 const PREFIX = '/api';
 
-const CLIENT_PREFIX = '';
+const CLIENT_PREFIX = 'client';
 
 const SERVER_PREFIX = 'server';
 
@@ -458,7 +458,15 @@ const INIT_SERVER_PERMISSIONS = [
     ...DANMAKU_PERMISSIONS
 ];
 
-const INIT_CLIENT_PERMISSIONS = [];
+const CLIENT_BANNER_PERMISSIONS = [
+    {
+        name: '前台接口：动漫轮播查询',
+        permission: `${CLIENT_PREFIX}:anime-banners:${PERM.VIEW}`,
+        system: 1
+    }
+];
+
+const INIT_CLIENT_PERMISSIONS = [...CLIENT_BANNER_PERMISSIONS];
 
 const INIT_PERMISSIONS = [
     ...INIT_SERVER_PERMISSIONS,

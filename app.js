@@ -44,7 +44,7 @@ app.use(
             reset: 'Rate-Limit-Reset',
             total: 'Rate-Limit-Total'
         },
-        max: 50,
+        max: 200,
         disableHeader: false,
         whitelist: () => {},
         blacklist: () => {}
