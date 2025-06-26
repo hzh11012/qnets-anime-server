@@ -3,6 +3,7 @@ CREATE TABLE `Anime` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(50) NOT NULL,
     `description` VARCHAR(1000) NOT NULL,
+    `remark` VARCHAR(25) NOT NULL,
     `coverUrl` VARCHAR(191) NOT NULL,
     `bannerUrl` VARCHAR(191) NOT NULL,
     `status` TINYINT UNSIGNED NOT NULL,

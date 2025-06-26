@@ -20,10 +20,18 @@ const AnimeCreateValidator = parameter => {
             required_error: 'name 不能为空',
             invalid_type_error: 'name 类型错误'
         })
-            .max(25, {
-                message: 'name 长度不能超过25'
+            .max(50, {
+                message: 'name 长度不能超过50'
             })
             .min(1, 'name 不能为空'),
+        remark: Zod.string({
+            required_error: 'remark 不能为空',
+            invalid_type_error: 'remark 类型错误'
+        })
+            .max(25, {
+                message: 'remark 长度不能超过25'
+            })
+            .min(1, 'remark 不能为空'),
         description: Zod.string({
             required_error: 'description 不能为空',
             invalid_type_error: 'description 类型错误'

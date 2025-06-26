@@ -9,6 +9,7 @@ class AnimeService {
      * @param {string} series 动漫系列ID
      * @param {string} name 动漫名称
      * @param {string} description 动漫简介
+     * @param {string} remark 动漫简评
      * @param {string} coverUrl 动漫封面
      * @param {string} bannerUrl 动漫横幅
      * @param {number} status 动漫状态 0-即将上线 1-连载中 2-已完结

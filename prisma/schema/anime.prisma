@@ -6,6 +6,8 @@ model Anime {
     name        String  @db.VarChar(50)
     /// 动漫简介
     description String  @db.VarChar(1000)
+    /// 动漫简评
+    remark      String  @db.VarChar(25)
     /// 动漫封面
     coverUrl    String
     /// 动漫横幅
