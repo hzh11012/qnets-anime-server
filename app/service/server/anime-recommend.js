@@ -123,7 +123,7 @@ class AnimeRecommendService {
                     );
                 }
                 data.animes = {
-                    connect: animes.map(id => ({id}))
+                    set: animes.map(id => ({id}))
                 };
             }
 

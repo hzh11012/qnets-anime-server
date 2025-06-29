@@ -1,16 +1,23 @@
 const AnimeBannerDao = require('@dao/anime-banner');
-const AnimeDao = require('@dao/anime');
-const {NotFound, Existing} = require('@core/http-exception');
+const {ANIEM_TYPE_4_PERMISSION, ADMIN} = require('@core/consts');
 
 class AnimeBannerService {
     /**
      * @title 首页轮播
+     * @param {string[]} permissions 当前用户权限
      */
-    static async options() {
+    static async options({permissions}) {
         try {
+            // 是否允许查询里番
+            const isAllowAnimeType4 = [
+                ADMIN,
+                ANIEM_TYPE_4_PERMISSION.permission
+            ].some(p => permissions.includes(p));
+
             const params = {
                 take: 7,
                 orderBy: {createdAt: 'desc'},
+                where: isAllowAnimeType4 ? {} : {anime: {type: {not: 4}}},
                 include: {
                     anime: {
                         select: {

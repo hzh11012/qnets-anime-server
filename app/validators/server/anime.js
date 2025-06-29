@@ -182,6 +182,13 @@ const AnimeEditValidator = parameter => {
         })
             .max(255, 'series 长度不能超过255')
             .optional(),
+        remark: Zod.string({
+            invalid_type_error: 'remark 类型错误'
+        })
+            .max(25, {
+                message: 'remark 长度不能超过25'
+            })
+            .optional(),
         description: Zod.string({
             invalid_type_error: 'description 类型错误'
         })

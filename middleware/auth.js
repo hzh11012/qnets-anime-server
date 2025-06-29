@@ -81,7 +81,7 @@ const auth = requiredPermissions => {
                     throw new Forbidden('权限不足');
             }
 
-            ctx.auth = {email};
+            ctx.auth = {email, permissions};
             await next();
         } catch (err) {
             throw err;

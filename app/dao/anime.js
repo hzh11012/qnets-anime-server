@@ -29,10 +29,18 @@ class AnimeDao {
         });
     }
 
-    static async list({where, skip, take, orderBy, include, omit}) {
+    static async list({where, skip, take, orderBy, select, include, omit}) {
         const [total, rows] = await Promise.all([
             prisma.anime.count({where}),
-            prisma.anime.findMany({where, skip, take, orderBy, include, omit})
+            prisma.anime.findMany({
+                where,
+                skip,
+                take,
+                orderBy,
+                select,
+                include,
+                omit
+            })
         ]);
         return {rows, total};
     }

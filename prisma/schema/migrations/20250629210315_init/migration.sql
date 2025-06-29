@@ -72,6 +72,8 @@ CREATE TABLE `AnimeGuide` (
 CREATE TABLE `AnimeRecommend` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(50) NOT NULL,
+    `coverUrl` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(1000) NOT NULL,
     `status` TINYINT UNSIGNED NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,

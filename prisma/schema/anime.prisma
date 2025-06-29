@@ -124,11 +124,15 @@ model AnimeGuide {
 /// 动漫推荐模型
 model AnimeRecommend {
     /// 动漫推荐ID
-    id     String @id @default(ulid())
+    id          String @id @default(ulid())
     /// 动漫推荐标题
-    name   String @db.VarChar(50)
+    name        String @db.VarChar(50)
+    /// 动漫推荐封面
+    coverUrl    String
+    /// 动漫推荐简介
+    description String @db.VarChar(1000)
     /// 动漫推荐状态 0-禁用 1-启用
-    status Int    @db.UnsignedTinyInt
+    status      Int    @db.UnsignedTinyInt
 
     /// 创建时间
     createdAt DateTime @default(now())

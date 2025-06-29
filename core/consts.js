@@ -21,19 +21,21 @@ const INIT_ANIME_TAGS = [
     {name: '小说改'},
     {name: '游戏改'},
     {name: '特摄'},
-    {name: '布袋戏'},
     {name: '热血'},
     {name: '穿越'},
     {name: '奇幻'},
     {name: '战斗'},
+    {name: '玄幻'},
     {name: '搞笑'},
     {name: '日常'},
     {name: '科幻'},
+    {name: '武侠'},
     {name: '萌系'},
     {name: '治愈'},
     {name: '校园'},
     {name: '少儿'},
     {name: '泡面'},
+    {name: '悬疑'},
     {name: '恋爱'},
     {name: '少女'},
     {name: '魔法'},
@@ -53,7 +55,8 @@ const INIT_ANIME_TAGS = [
     {name: '美食'},
     {name: '偶像'},
     {name: '乙女'},
-    {name: '职场'}
+    {name: '职场'},
+    {name: '古风'}
 ];
 
 const USER_PERMISSIONS = [
@@ -458,10 +461,22 @@ const INIT_SERVER_PERMISSIONS = [
     ...DANMAKU_PERMISSIONS
 ];
 
+const ANIEM_TYPE_4_PERMISSION = {
+    name: '动漫类型：里番',
+    permission: `${CLIENT_PREFIX}:anime-type-4:${PERM.VIEW}`,
+    system: 1
+};
+
 const CLIENT_BANNER_PERMISSIONS = [
     {
         name: '前台接口：动漫轮播查询',
         permission: `${CLIENT_PREFIX}:anime-banners:${PERM.VIEW}`,
+        system: 1
+    },
+    {
+        // 包含 首页动漫推荐、动漫搜索
+        name: '前台接口：动漫查询',
+        permission: `${CLIENT_PREFIX}:animes:${PERM.VIEW}`,
         system: 1
     }
 ];
@@ -471,6 +486,7 @@ const INIT_CLIENT_PERMISSIONS = [...CLIENT_BANNER_PERMISSIONS];
 const INIT_PERMISSIONS = [
     ...INIT_SERVER_PERMISSIONS,
     ...INIT_CLIENT_PERMISSIONS,
+    ANIEM_TYPE_4_PERMISSION,
     {name: '所有权限', permission: ADMIN, system: 1}
 ];
 
@@ -482,5 +498,6 @@ module.exports = {
     PERM,
     DEFAULT_USER,
     INIT_PERMISSIONS,
-    INIT_ANIME_TAGS
+    INIT_ANIME_TAGS,
+    ANIEM_TYPE_4_PERMISSION
 };

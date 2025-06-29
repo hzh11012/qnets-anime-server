@@ -199,7 +199,7 @@ class AnimeService {
                     );
                 }
                 data.animeTags = {
-                    connect: tags.map(id => ({id}))
+                    set: tags.map(id => ({id}))
                 };
             }
             // 检查动漫是否存在
