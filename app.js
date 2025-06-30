@@ -37,7 +37,10 @@ app.use(
         driver: 'redis',
         db: redis.redis,
         duration: 60000,
-        errorMessage: '访问频率过高，请稍后再试',
+        errorMessage: {
+            msg: '访问频率过高，请稍后再试',
+            code: 429
+        },
         id: ctx => ctx.ip,
         headers: {
             remaining: 'Rate-Limit-Remaining',
