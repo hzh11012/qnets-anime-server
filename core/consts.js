@@ -243,30 +243,30 @@ const GUIDE_PERMISSIONS = [
     }
 ];
 
-const RECOMMEND_PERMISSIONS = [
+const TOPIC_PERMISSIONS = [
     {
         name: '后台页面：每周推荐',
-        permission: `${SERVER_PREFIX}:recommend`,
+        permission: `${SERVER_PREFIX}:topic`,
         system: 1
     },
     {
-        name: '后台接口：动漫推荐创建',
-        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.CREATE}`,
+        name: '后台接口：动漫专题创建',
+        permission: `${SERVER_PREFIX}:anime-topics:${PERM.CREATE}`,
         system: 1
     },
     {
-        name: '后台接口：动漫推荐删除',
-        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.DELETE}`,
+        name: '后台接口：动漫专题删除',
+        permission: `${SERVER_PREFIX}:anime-topics:${PERM.DELETE}`,
         system: 1
     },
     {
-        name: '后台接口：动漫推荐编辑',
-        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.EDIT}`,
+        name: '后台接口：动漫专题编辑',
+        permission: `${SERVER_PREFIX}:anime-topics:${PERM.EDIT}`,
         system: 1
     },
     {
-        name: '后台接口：动漫推荐查询',
-        permission: `${SERVER_PREFIX}:anime-recommends:${PERM.VIEW}`,
+        name: '后台接口：动漫专题查询',
+        permission: `${SERVER_PREFIX}:anime-topics:${PERM.VIEW}`,
         system: 1
     }
 ];
@@ -451,7 +451,7 @@ const INIT_SERVER_PERMISSIONS = [
     ...MESSAGE_PERMISSIONS,
     ...BANNER_PERMISSIONS,
     ...GUIDE_PERMISSIONS,
-    ...RECOMMEND_PERMISSIONS,
+    ...TOPIC_PERMISSIONS,
     ...SERIES_PERMISSIONS,
     ...ANIME_PERMISSIONS,
     ...VIDEO_PERMISSIONS,
@@ -474,7 +474,7 @@ const CLIENT_BANNER_PERMISSIONS = [
         system: 1
     },
     {
-        // 包含 首页动漫推荐、动漫搜索
+        // 包含 首页动漫、动漫搜索
         name: '前台接口：动漫查询',
         permission: `${CLIENT_PREFIX}:animes:${PERM.VIEW}`,
         system: 1

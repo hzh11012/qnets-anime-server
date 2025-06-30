@@ -1,30 +1,31 @@
 const prisma = require('@core/prisma');
 
-class AnimeDao {
+class AnimeTopicDao {
     static async delete(id) {
-        return await prisma.animeRecommend.delete({where: {id}});
+        return await prisma.animeTopic.delete({where: {id}});
     }
 
     static async findById(id) {
-        return await prisma.animeRecommend.findUnique({where: {id}});
+        return await prisma.animeTopic.findUnique({where: {id}});
     }
 
     static async create(data) {
-        return await prisma.animeRecommend.create({data});
+        return await prisma.animeTopic.create({data});
     }
 
     static async findByName(name) {
-        return await prisma.animeRecommend.findFirst({where: {name}});
+        return await prisma.animeTopic.findFirst({where: {name}});
     }
 
-    static async list({where, skip, take, orderBy, include, omit}) {
+    static async list({where, skip, take, orderBy, select, include, omit}) {
         const [total, rows] = await Promise.all([
-            prisma.animeRecommend.count({where}),
-            prisma.animeRecommend.findMany({
+            prisma.animeTopic.count({where}),
+            prisma.animeTopic.findMany({
                 where,
                 skip,
                 take,
                 orderBy,
+                select,
                 include,
                 omit
             })
@@ -33,11 +34,11 @@ class AnimeDao {
     }
 
     static async update(id, data) {
-        return await prisma.animeRecommend.update({
+        return await prisma.animeTopic.update({
             where: {id},
             data
         });
     }
 }
 
-module.exports = AnimeDao;
+module.exports = AnimeTopicDao;

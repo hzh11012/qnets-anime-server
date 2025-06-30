@@ -69,7 +69,7 @@ CREATE TABLE `AnimeGuide` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `AnimeRecommend` (
+CREATE TABLE `AnimeTopic` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(50) NOT NULL,
     `coverUrl` VARCHAR(191) NOT NULL,
@@ -78,9 +78,9 @@ CREATE TABLE `AnimeRecommend` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    INDEX `AnimeRecommend_name_idx`(`name`),
-    INDEX `AnimeRecommend_status_idx`(`status`),
-    INDEX `AnimeRecommend_createdAt_idx`(`createdAt`),
+    INDEX `AnimeTopic_name_idx`(`name`),
+    INDEX `AnimeTopic_status_idx`(`status`),
+    INDEX `AnimeTopic_createdAt_idx`(`createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -272,12 +272,12 @@ CREATE TABLE `Danmaku` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `_AnimeToAnimeRecommend` (
+CREATE TABLE `_AnimeToAnimeTopic` (
     `A` VARCHAR(191) NOT NULL,
     `B` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `_AnimeToAnimeRecommend_AB_unique`(`A`, `B`),
-    INDEX `_AnimeToAnimeRecommend_B_index`(`B`)
+    UNIQUE INDEX `_AnimeToAnimeTopic_AB_unique`(`A`, `B`),
+    INDEX `_AnimeToAnimeTopic_B_index`(`B`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -356,10 +356,10 @@ ALTER TABLE `Danmaku` ADD CONSTRAINT `Danmaku_videoId_fkey` FOREIGN KEY (`videoI
 ALTER TABLE `Danmaku` ADD CONSTRAINT `Danmaku_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `_AnimeToAnimeRecommend` ADD CONSTRAINT `_AnimeToAnimeRecommend_A_fkey` FOREIGN KEY (`A`) REFERENCES `Anime`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `_AnimeToAnimeTopic` ADD CONSTRAINT `_AnimeToAnimeTopic_A_fkey` FOREIGN KEY (`A`) REFERENCES `Anime`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `_AnimeToAnimeRecommend` ADD CONSTRAINT `_AnimeToAnimeRecommend_B_fkey` FOREIGN KEY (`B`) REFERENCES `AnimeRecommend`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `_AnimeToAnimeTopic` ADD CONSTRAINT `_AnimeToAnimeTopic_B_fkey` FOREIGN KEY (`B`) REFERENCES `AnimeTopic`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_AnimeToAnimeTag` ADD CONSTRAINT `_AnimeToAnimeTag_A_fkey` FOREIGN KEY (`A`) REFERENCES `Anime`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

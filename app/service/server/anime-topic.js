@@ -1,17 +1,19 @@
-const AnimeRecommendDao = require('@dao/anime-recommend');
+const AnimeTopicDao = require('@app/dao/anime-topic');
 const AnimeDao = require('@dao/anime');
 const {NotFound, Existing} = require('@core/http-exception');
 
-class AnimeRecommendService {
+class AnimeTopicService {
     /**
-     * @title 动漫推荐创建
-     * @param {string} name 动漫推荐标题
-     * @param {number} status 动漫推荐状态 0-禁用 1-启用
+     * @title 动漫专题创建
+     * @param {string} name 动漫专题标题
+     * @param {string} description 动漫专题简介
+     * @param {string} coverUrl 动漫荐封面
+     * @param {number} status 动漫专题状态 0-禁用 1-启用
      * @param {string[]} animes 动漫ID
      */
-    static async create({name, status, animes}) {
+    static async create({name, animes, ...rest}) {
         try {
-            let data = {name, status};
+            let data = {name, ...rest};
             // 检查动漫是否存在
             if (animes && animes.length) {
                 const existingAnimes = await AnimeDao.findByIds(animes);
@@ -30,39 +32,38 @@ class AnimeRecommendService {
                     connect: animes.map(id => ({id}))
                 };
             }
-            // 检查动漫推荐是否存在
-            const existingAnimeRecommend =
-                await AnimeRecommendDao.findByName(name);
-            if (existingAnimeRecommend) throw new Existing(`动漫推荐已存在`);
+            // 检查动漫专题是否存在
+            const existingAnimeTopic = await AnimeTopicDao.findByName(name);
+            if (existingAnimeTopic) throw new Existing(`动漫专题已存在`);
 
-            return await AnimeRecommendDao.create(data);
+            return await AnimeTopicDao.create(data);
         } catch (error) {
             throw error;
         }
     }
 
     /**
-     * @title 动漫推荐删除
+     * @title 动漫专题删除
      * @param {string} id 动漫ID
      */
     static async delete({id}) {
         try {
-            const existing = await AnimeRecommendDao.findById(id);
-            if (!existing) throw new NotFound('动漫推荐不存在');
+            const existing = await AnimeTopicDao.findById(id);
+            if (!existing) throw new NotFound('动漫专题不存在');
 
-            return await AnimeRecommendDao.delete(id);
+            return await AnimeTopicDao.delete(id);
         } catch (error) {
             throw error;
         }
     }
 
     /**
-     * @title 动漫推荐列表
+     * @title 动漫专题列表
      * @param {number} page - 页码 [可选]
      * @param {number} pageSize - 每页数量 [可选]
      * @param {string} keyword - 搜索关键词 [可选]
      * @param {string} type - 搜索类型 [可选]
-     * @param {number[]} status - 动漫推荐状态 0-禁用 1-启用  [可选]
+     * @param {number[]} status - 动漫专题状态 0-禁用 1-启用  [可选]
      * @param {string} order - 排序 [可选]
      * @param {string} orderBy - 排序字段 [可选]
      */
@@ -88,25 +89,27 @@ class AnimeRecommendService {
                 omit: {updatedAt: true}
             };
 
-            return await AnimeRecommendDao.list(params);
+            return await AnimeTopicDao.list(params);
         } catch (error) {
             throw error;
         }
     }
 
     /**
-     * @title 动漫推荐编辑
-     * @param {string} id 动漫推荐ID
-     * @param {string} name 动漫推荐标题
-     * @param {number} status 动漫推荐状态 0-禁用 1-启用
+     * @title 动漫专题编辑
+     * @param {string} id 动漫专题ID
+     * @param {string} name 动漫专题标题
+     * @param {string} description 动漫专题简介
+     * @param {string} coverUrl 动漫荐封面
+     * @param {number} status 动漫专题状态 0-禁用 1-启用
      * @param {string[]} animes 动漫ID
      */
-    static async edit({id, name, status, animes}) {
+    static async edit({id, name, animes, ...rest}) {
         try {
-            let data = {name, status};
-            // 检查动漫推荐是否存在
-            const existing = await AnimeRecommendDao.findById(id);
-            if (!existing) throw new NotFound('动漫推荐不存在');
+            let data = {name, ...rest};
+            // 检查动漫专题是否存在
+            const existing = await AnimeTopicDao.findById(id);
+            if (!existing) throw new NotFound('动漫专题不存在');
 
             // 检查动漫是否存在
             if (animes && animes.length) {
@@ -128,15 +131,16 @@ class AnimeRecommendService {
             }
 
             // 检查动漫是否存在
-            const existingAnimeRecommend =
-                await AnimeRecommendDao.findByName(name);
-            if (existingAnimeRecommend) throw new Existing(`动漫推荐已存在`);
+            if (existing.name !== name) {
+                const existingAnimeTopic = await AnimeTopicDao.findByName(name);
+                if (existingAnimeTopic) throw new Existing(`动漫专题已存在`);
+            }
 
-            return await AnimeRecommendDao.update(id, data);
+            return await AnimeTopicDao.update(id, data);
         } catch (error) {
             throw error;
         }
     }
 }
 
-module.exports = AnimeRecommendService;
+module.exports = AnimeTopicService;

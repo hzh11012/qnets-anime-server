@@ -42,8 +42,8 @@ model Anime {
     animeBanner      AnimeBanner?
     /// 1-1 新番导视
     animeGuide       AnimeGuide?
-    /// n-n 动漫推荐
-    animeRecommends  AnimeRecommend[]
+    /// n-n 动漫专题
+    animeTopics      AnimeTopic[]
     /// 1-n 动漫评分
     animeRatings     AnimeRating[]
     /// n-n 动漫分类
@@ -121,17 +121,17 @@ model AnimeGuide {
     @@index([createdAt])
 }
 
-/// 动漫推荐模型
-model AnimeRecommend {
-    /// 动漫推荐ID
+/// 动漫专题模型
+model AnimeTopic {
+    /// 动漫专题ID
     id          String @id @default(ulid())
-    /// 动漫推荐标题
+    /// 动漫专题标题
     name        String @db.VarChar(50)
-    /// 动漫推荐封面
+    /// 动漫专题封面
     coverUrl    String
-    /// 动漫推荐简介
+    /// 动漫专题简介
     description String @db.VarChar(1000)
-    /// 动漫推荐状态 0-禁用 1-启用
+    /// 动漫专题状态 0-禁用 1-启用
     status      Int    @db.UnsignedTinyInt
 
     /// 创建时间
