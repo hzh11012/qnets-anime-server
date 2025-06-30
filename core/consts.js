@@ -467,7 +467,7 @@ const ANIEM_TYPE_4_PERMISSION = {
     system: 1
 };
 
-const CLIENT_BANNER_PERMISSIONS = [
+const CLIENT_API_PERMISSIONS = [
     {
         name: '前台接口：动漫轮播查询',
         permission: `${CLIENT_PREFIX}:anime-banners:${PERM.VIEW}`,
@@ -478,10 +478,16 @@ const CLIENT_BANNER_PERMISSIONS = [
         name: '前台接口：动漫查询',
         permission: `${CLIENT_PREFIX}:animes:${PERM.VIEW}`,
         system: 1
+    },
+    {
+        // 包含 首页动漫专题、动漫专题查询
+        name: '前台接口：动漫专题查询',
+        permission: `${CLIENT_PREFIX}:anime-topics:${PERM.VIEW}`,
+        system: 1
     }
 ];
 
-const INIT_CLIENT_PERMISSIONS = [...CLIENT_BANNER_PERMISSIONS];
+const INIT_CLIENT_PERMISSIONS = [...CLIENT_API_PERMISSIONS];
 
 const INIT_PERMISSIONS = [
     ...INIT_SERVER_PERMISSIONS,
