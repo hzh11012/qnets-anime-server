@@ -52,6 +52,8 @@ model Anime {
     animeCollections AnimeCollection[]
     /// 1-n 视频
     videos           Video[]
+    /// 1-n 历史播放
+    VideoHistories   VideoHistory[]
 
     @@index([name])
     @@index([status])

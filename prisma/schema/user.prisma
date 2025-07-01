@@ -30,6 +30,8 @@ model User {
     videoCommentLikes VideoCommentLike[]
     /// 1-n 弹幕
     danmakus          Danmaku[]
+    /// 1-n 播放历史
+    videoHistories    VideoHistory[]
 
     @@index([status])
     @@index([createdAt])

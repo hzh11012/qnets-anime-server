@@ -17,13 +17,15 @@ model Video {
     updatedAt DateTime @updatedAt
 
     /// n-1 动漫
-    anime         Anime          @relation(fields: [animeId], references: [id], onDelete: Cascade)
+    anime          Anime          @relation(fields: [animeId], references: [id], onDelete: Cascade)
     /// 动漫ID
-    animeId       String
+    animeId        String
     /// 1-n 视频评论
-    videoComments VideoComment[]
+    videoComments  VideoComment[]
     /// 1-n 弹幕
-    danmakus      Danmaku[]
+    danmakus       Danmaku[]
+    /// 1-n 播放历史
+    videoHistories VideoHistory[]
 
     @@unique([animeId, episode])
     @@index([episode])
@@ -123,4 +125,36 @@ model Danmaku {
     @@index([userId])
     @@index([time])
     @@index([createdAt])
+}
+
+/// 播放历史模型
+model VideoHistory {
+    /// 播放历史ID
+    id   String @id @default(ulid())
+    /// 播放时间点
+    time Float  @db.Float
+
+    /// n-1 用户
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    /// 用户ID
+    userId String
+
+    /// n-1 视频
+    video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+    /// 视频ID
+    videoId String
+
+    /// n-1 动漫
+    anime   Anime  @relation(fields: [animeId], references: [id], onDelete: Cascade)
+    /// 动漫ID
+    animeId String
+
+    /// 创建时间
+    createdAt DateTime @default(now())
+    /// 更新时间
+    updatedAt DateTime @updatedAt
+
+    @@unique([userId, animeId])
+    @@index([userId])
+    @@index([updatedAt])
 }

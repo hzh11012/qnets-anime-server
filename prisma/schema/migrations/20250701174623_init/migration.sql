@@ -272,6 +272,22 @@ CREATE TABLE `Danmaku` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `VideoHistory` (
+    `id` VARCHAR(191) NOT NULL,
+    `time` FLOAT NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `videoId` VARCHAR(191) NOT NULL,
+    `animeId` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `VideoHistory_userId_idx`(`userId`),
+    INDEX `VideoHistory_updatedAt_idx`(`updatedAt`),
+    UNIQUE INDEX `VideoHistory_userId_animeId_key`(`userId`, `animeId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `_AnimeToAnimeTopic` (
     `A` VARCHAR(191) NOT NULL,
     `B` VARCHAR(191) NOT NULL,
@@ -354,6 +370,15 @@ ALTER TABLE `Danmaku` ADD CONSTRAINT `Danmaku_videoId_fkey` FOREIGN KEY (`videoI
 
 -- AddForeignKey
 ALTER TABLE `Danmaku` ADD CONSTRAINT `Danmaku_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `VideoHistory` ADD CONSTRAINT `VideoHistory_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `VideoHistory` ADD CONSTRAINT `VideoHistory_videoId_fkey` FOREIGN KEY (`videoId`) REFERENCES `Video`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `VideoHistory` ADD CONSTRAINT `VideoHistory_animeId_fkey` FOREIGN KEY (`animeId`) REFERENCES `Anime`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_AnimeToAnimeTopic` ADD CONSTRAINT `_AnimeToAnimeTopic_A_fkey` FOREIGN KEY (`A`) REFERENCES `Anime`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

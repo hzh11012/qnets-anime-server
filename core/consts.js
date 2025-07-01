@@ -442,6 +442,24 @@ const DANMAKU_PERMISSIONS = [
     }
 ];
 
+const HISTORY_PERMISSIONS = [
+    {
+        name: '后台页面：历史播放',
+        permission: `${SERVER_PREFIX}:history`,
+        system: 1
+    },
+    {
+        name: '后台接口：历史播放删除',
+        permission: `${SERVER_PREFIX}:video-histories:${PERM.DELETE}`,
+        system: 1
+    },
+    {
+        name: '后台接口：历史播放查询',
+        permission: `${SERVER_PREFIX}:video-histories:${PERM.VIEW}`,
+        system: 1
+    }
+];
+
 const INIT_SERVER_PERMISSIONS = [
     ...USER_PERMISSIONS,
     ...ROLE_PERMISSIONS,
@@ -458,7 +476,8 @@ const INIT_SERVER_PERMISSIONS = [
     ...TAG_PERMISSIONS,
     ...NOTICE_PERMISSIONS,
     ...COMMENT_PERMISSIONS,
-    ...DANMAKU_PERMISSIONS
+    ...DANMAKU_PERMISSIONS,
+    ...HISTORY_PERMISSIONS
 ];
 
 const ANIEM_TYPE_4_PERMISSION = {
