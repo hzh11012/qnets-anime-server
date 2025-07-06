@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const {Resolve} = require('@core/http-exception');
-const AnimeBannerService = require('@service/client/anime-banner');
+const AnimeCollectionService = require('@service/client/anime-collection');
 const auth = require('@middleware/auth');
 const {PREFIX, CLIENT_PREFIX, ADMIN, PERM} = require('@core/consts');
 const res = new Resolve();
@@ -9,17 +9,17 @@ const router = new Router({
     prefix: `${PREFIX}/${CLIENT_PREFIX}`
 });
 
-const PATH = 'anime-banners';
+const PATH = 'anime-collections';
 
-// 动漫轮播 (用于首页)
+// 我的追番 (用于首页)
 router.get(
     `/${PATH}/options`,
     auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
     async ctx => {
-        const permissions = ctx.auth.permissions;
-        const options = await AnimeBannerService.options({permissions});
+        const userId = ctx.auth.userId;
+        const options = await AnimeCollectionService.options({id: userId});
         ctx.status = 200;
-        ctx.body = res.json(options, '轮播获取成功');
+        ctx.body = res.json(options, '动漫追番获取成功');
     }
 );
 

@@ -9,6 +9,22 @@ class AnimeRatingDao {
         return await prisma.animeRating.findUnique({where: {id}});
     }
 
+    static async findByUserId(userId) {
+        return await prisma.animeRating.findMany({where: {userId}});
+    }
+
+    static async findByUserIds(userIds) {
+        return await prisma.animeRating.findMany({
+            where: {userId: {in: userIds}}
+        });
+    }
+
+    static async findByAnimeIds(animeIds) {
+        return await prisma.animeRating.findMany({
+            where: {animeId: {in: animeIds}}
+        });
+    }
+
     static async list({where, skip, take, orderBy, include, omit}) {
         const [total, rows] = await Promise.all([
             prisma.animeRating.count({where}),

@@ -46,10 +46,7 @@ class AnimeDao {
     }
 
     static async update(id, data) {
-        return await prisma.anime.update({
-            where: {id},
-            data
-        });
+        return await prisma.anime.update({where: {id}, data});
     }
 }
 

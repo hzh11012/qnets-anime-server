@@ -22,8 +22,11 @@ const verify = async token => {
 
         const {email} = data;
 
-        const cachedPermissions = await redis.get(`permission:${email}`);
-        if (cachedPermissions) return [JSON.parse(cachedPermissions), email];
+        const cachedUserInfo = await redis.get(`info:${email}`);
+        if (cachedUserInfo) {
+            const {permissions, userId} = JSON.parse(cachedUserInfo);
+            return [permissions, email, userId];
+        }
 
         const user = await prisma.user.findUnique({
             where: {email},
@@ -46,14 +49,15 @@ const verify = async token => {
         const permissions = user.roles.flatMap(role =>
             role.permissions.map(p => p.permission)
         );
+        const userId = user.id;
 
         await redis.set(
-            `permission:${email}`,
-            JSON.stringify(permissions),
+            `info:${email}`,
+            JSON.stringify({permissions, userId}),
             PERMISSION_CACHE_TTL
         );
 
-        return [permissions, email];
+        return [permissions, email, userId];
     } catch (err) {
         if (err.response?.body) {
             const {code, msg} = JSON.parse(err.response.body);
@@ -69,7 +73,7 @@ const auth = requiredPermissions => {
         if (!token) throw new AuthFailed('令牌缺失');
 
         try {
-            const [permissions, email] = await verify(token);
+            const [permissions, email, userId] = await verify(token);
 
             if (requiredPermissions) {
                 const _requiredPermissions =
@@ -81,7 +85,7 @@ const auth = requiredPermissions => {
                     throw new Forbidden('权限不足');
             }
 
-            ctx.auth = {email, permissions};
+            ctx.auth = {email, permissions, userId};
             await next();
         } catch (err) {
             throw err;
