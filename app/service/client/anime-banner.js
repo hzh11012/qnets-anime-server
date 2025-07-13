@@ -6,7 +6,7 @@ class AnimeBannerService {
      * @title 首页轮播
      * @param {string[]} permissions 当前用户权限
      */
-    static async options({permissions}) {
+    static async options({permissions, userId}) {
         try {
             // 是否允许查询里番
             const isAllowAnimeType4 = [
@@ -24,7 +24,16 @@ class AnimeBannerService {
                             name: true,
                             bannerUrl: true,
                             status: true,
-                            _count: {select: {videos: true}}
+                            _count: {select: {videos: true}},
+                            videoHistories: {
+                                where: {userId},
+                                select: {videoId: true}
+                            },
+                            videos: {
+                                take: 1,
+                                orderBy: {episode: 'asc'},
+                                select: {id: true}
+                            }
                         }
                     }
                 },
@@ -33,13 +42,22 @@ class AnimeBannerService {
 
             const {rows, total} = await AnimeBannerDao.list(params);
 
-            const data = rows.map(({animeId, anime}) => ({
-                id: animeId,
-                name: anime.name,
-                bannerUrl: anime.bannerUrl,
-                status: anime.status,
-                videoCount: anime._count.videos
-            }));
+            const data = rows.map(({animeId, anime}) => {
+                const {videoHistories, videos, _count, ...rest} = anime;
+
+                let videoId = videos[0]?.id || undefined;
+
+                if (videoHistories.length) {
+                    videoId = videoHistories[0]?.videoId;
+                }
+
+                return {
+                    id: animeId,
+                    videoId,
+                    videoCount: _count.videos,
+                    ...rest
+                };
+            });
 
             return {total, rows: data};
         } catch (error) {

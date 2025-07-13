@@ -4,7 +4,7 @@ const {
     commonList,
     validate,
     commonIdValidator
-} = require('@validators/server/common');
+} = require('@validators/common');
 
 const VIDEO_REG = /^(https?:)?\/\/.*\/index\.m3u8$/;
 

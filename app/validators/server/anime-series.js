@@ -3,7 +3,7 @@ const {
     commonList,
     validate,
     commonIdValidator
-} = require('@validators/server/common');
+} = require('@validators/common');
 
 const AnimeSeriesCreateValidator = parameter => {
     const schema = Zod.object({

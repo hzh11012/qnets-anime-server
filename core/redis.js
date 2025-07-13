@@ -3,7 +3,8 @@ const Redis = require('ioredis');
 const config = {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
-    password: process.env.REDIS_PASSWORD
+    password: process.env.REDIS_PASSWORD,
+    keepAlive: 30000
 };
 
 class RedisService {

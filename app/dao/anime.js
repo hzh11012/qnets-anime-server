@@ -5,8 +5,8 @@ class AnimeDao {
         return await prisma.anime.delete({where: {id}});
     }
 
-    static async findById(id) {
-        return await prisma.anime.findUnique({where: {id}});
+    static async findById(id, select) {
+        return await prisma.anime.findUnique({where: {id}, select});
     }
 
     static async findByIds(ids) {

@@ -61,6 +61,16 @@ class AnimeCollectionDao {
 
         return {total, rows};
     }
+
+    static async countByAnimeId(animeId) {
+        return await prisma.animeCollection.count({where: {animeId}});
+    }
+
+    static async findByUserAndAnime(userId, animeId) {
+        return await prisma.animeCollection.findFirst({
+            where: {userId, animeId}
+        });
+    }
 }
 
 module.exports = AnimeCollectionDao;

@@ -1,5 +1,5 @@
 const Zod = require('zod');
-const {commonList, validate, commonIdValidator} = require('@validators/server/common');
+const {commonList, validate, commonIdValidator} = require('@validators/common');
 
 const AnimeTagCreateValidator = parameter => {
     const schema = Zod.object({

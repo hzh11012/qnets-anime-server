@@ -25,6 +25,18 @@ class AnimeRatingDao {
         });
     }
 
+    static async findByUserAndAnime(userId, animeId) {
+        return await prisma.animeRating.findFirst({where: {userId, animeId}});
+    }
+
+    static async getAvgRating(animeId) {
+        const result = await prisma.animeRating.aggregate({
+            where: {animeId},
+            _avg: {score: true}
+        });
+        return result._avg.score || 0;
+    }
+
     static async list({where, skip, take, orderBy, include, omit}) {
         const [total, rows] = await Promise.all([
             prisma.animeRating.count({where}),

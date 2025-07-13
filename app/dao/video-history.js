@@ -9,6 +9,10 @@ class VideoHistoryDao {
         return await prisma.videoHistory.findUnique({where: {id}});
     }
 
+    static async find({where, select}) {
+        return await prisma.videoHistory.findFirst({where, select});
+    }
+
     static async findByUserId(userId) {
         return await prisma.videoHistory.findMany({where: {userId}});
     }

@@ -503,6 +503,12 @@ const CLIENT_API_PERMISSIONS = [
         name: '前台接口：动漫专题查询',
         permission: `${CLIENT_PREFIX}:anime-topics:${PERM.VIEW}`,
         system: 1
+    },
+    {
+        // 包含 首页我的追番，追番查询
+        name: '前台接口：动漫收藏查询',
+        permission: `${CLIENT_PREFIX}:anime-collections:${PERM.VIEW}`,
+        system: 1
     }
 ];
 

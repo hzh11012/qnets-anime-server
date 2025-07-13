@@ -17,7 +17,8 @@ router.get(
     auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
     async ctx => {
         const permissions = ctx.auth.permissions;
-        const options = await AnimeBannerService.options({permissions});
+        const userId = ctx.auth.userId;
+        const options = await AnimeBannerService.options({permissions, userId});
         ctx.status = 200;
         ctx.body = res.json(options, '轮播获取成功');
     }

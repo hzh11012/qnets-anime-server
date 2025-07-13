@@ -9,27 +9,40 @@ class VideoDao {
         return await prisma.video.delete({where: {id}});
     }
 
-    static async findById(id) {
-        return await prisma.video.findUnique({where: {id}});
+    static async findById(id, select) {
+        return await prisma.video.findUnique({where: {id}, select});
     }
 
     static async findByAnimeIdAndEpisode(animeId, episode) {
         return await prisma.video.findFirst({where: {animeId, episode}});
     }
 
-    static async list({where, skip, take, orderBy, include, omit}) {
+    static async list({where, skip, take, orderBy, include, omit, select}) {
         const [total, rows] = await Promise.all([
             prisma.video.count({where}),
             prisma.video.findMany({
                 where,
                 skip,
                 take,
+                select,
                 orderBy,
                 include,
                 omit
             })
         ]);
         return {rows, total};
+    }
+
+    static async count({where}) {
+        return await prisma.video.count({where});
+    }
+
+    static async getTotalPlayCountByAnimeId(animeId) {
+        const videos = await prisma.video.findMany({
+            where: {animeId},
+            select: {playCount: true}
+        });
+        return videos.reduce((sum, v) => sum + (v.playCount || 0), 0);
     }
 
     static async update(id, data) {
