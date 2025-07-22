@@ -1,6 +1,10 @@
 const prisma = require('@core/prisma');
 
 class AnimeRatingDao {
+    static async create(data) {
+        return await prisma.animeRating.create({data});
+    }
+
     static async delete(id) {
         return await prisma.animeRating.delete({where: {id}});
     }
@@ -26,7 +30,9 @@ class AnimeRatingDao {
     }
 
     static async findByUserAndAnime(userId, animeId) {
-        return await prisma.animeRating.findFirst({where: {userId, animeId}});
+        return await prisma.animeRating.findUnique({
+            where: {userId_animeId: {userId, animeId}}
+        });
     }
 
     static async getAvgRating(animeId) {
@@ -35,6 +41,15 @@ class AnimeRatingDao {
             _avg: {score: true}
         });
         return result._avg.score || 0;
+    }
+
+    static async getAvgRatingByAnimeIds(animeIds) {
+        const result = await prisma.animeRating.groupBy({
+            by: ['animeId'],
+            where: {animeId: {in: animeIds}},
+            _avg: {score: true}
+        });
+        return result.map(r => ({animeId: r.animeId, avg: r._avg.score}));
     }
 
     static async list({where, skip, take, orderBy, include, omit}) {

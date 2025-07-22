@@ -493,6 +493,11 @@ const CLIENT_API_PERMISSIONS = [
         system: 1
     },
     {
+        name: '前台接口：动漫系列查询',
+        permission: `${CLIENT_PREFIX}:anime-series:${PERM.VIEW}`,
+        system: 1
+    },
+    {
         // 包含 首页动漫、动漫搜索
         name: '前台接口：动漫查询',
         permission: `${CLIENT_PREFIX}:animes:${PERM.VIEW}`,
@@ -508,6 +513,36 @@ const CLIENT_API_PERMISSIONS = [
         // 包含 首页我的追番，追番查询
         name: '前台接口：动漫收藏查询',
         permission: `${CLIENT_PREFIX}:anime-collections:${PERM.VIEW}`,
+        system: 1
+    },
+    {
+        name: '前台接口：追番',
+        permission: `${CLIENT_PREFIX}:anime-collections:${PERM.CREATE}`,
+        system: 1
+    },
+    {
+        name: '前台接口：取消追番',
+        permission: `${CLIENT_PREFIX}:anime-collections:${PERM.DELETE}`,
+        system: 1
+    },
+    {
+        name: '前台接口：视频弹幕获取',
+        permission: `${CLIENT_PREFIX}:danmakus:${PERM.VIEW}`,
+        system: 1
+    },
+    {
+        name: '前台接口：视频弹幕发送',
+        permission: `${CLIENT_PREFIX}:danmakus:${PERM.CREATE}`,
+        system: 1
+    },
+    {
+        name: '前台接口：动漫评分',
+        permission: `${CLIENT_PREFIX}:anime-ratings:${PERM.CREATE}`,
+        system: 1
+    },
+    {
+        name: '前台接口：系统公告',
+        permission: `${CLIENT_PREFIX}:notices:${PERM.VIEW}`,
         system: 1
     }
 ];

@@ -1,8 +1,18 @@
 const prisma = require('@core/prisma');
 
 class AnimeCollectionDao {
+    static async create(data) {
+        return await prisma.animeCollection.create({data});
+    }
+
     static async delete(id) {
         return await prisma.animeCollection.delete({where: {id}});
+    }
+
+    static async deleteByUserAndAnime(userId, animeId) {
+        return await prisma.animeCollection.delete({
+            where: {userId_animeId: {userId, animeId}}
+        });
     }
 
     static async findById(id) {
@@ -44,6 +54,7 @@ class AnimeCollectionDao {
                     a.bannerUrl,
                     a.status,
                     v.id AS videoId,
+                    lv.id AS latestVideoId,
                     CAST(v.episode AS CHAR) AS episode,
                     (SELECT CAST(COUNT(*) AS CHAR) FROM Video vv WHERE vv.animeId = ac.animeId) AS videoCount
                 FROM AnimeCollection ac
@@ -53,6 +64,13 @@ class AnimeCollectionDao {
                     ON ac.animeId = a.id
                 LEFT JOIN Video v
                     ON vh.videoId = v.id
+                LEFT JOIN LATERAL (
+                    SELECT id, episode, createdAt
+                    FROM Video
+                    WHERE animeId = ac.animeId
+                    ORDER BY episode ASC
+                    LIMIT 1
+                ) lv ON TRUE
                 WHERE ac.userId = ${userId}
                 ORDER BY (vh.updatedAt IS NULL), vh.updatedAt DESC, ac.createdAt DESC
                 LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
@@ -67,8 +85,8 @@ class AnimeCollectionDao {
     }
 
     static async findByUserAndAnime(userId, animeId) {
-        return await prisma.animeCollection.findFirst({
-            where: {userId, animeId}
+        return await prisma.animeCollection.findUnique({
+            where: {userId_animeId: {userId, animeId}}
         });
     }
 }

@@ -28,7 +28,7 @@ router.post(
     }
 );
 
-//动漫轮播删除
+// 动漫轮播删除
 router.delete(
     `/${PATH}/:id`,
     auth([ADMIN, `${SERVER_PREFIX}:${PATH}:${PERM.DELETE}`]),

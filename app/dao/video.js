@@ -14,7 +14,9 @@ class VideoDao {
     }
 
     static async findByAnimeIdAndEpisode(animeId, episode) {
-        return await prisma.video.findFirst({where: {animeId, episode}});
+        return await prisma.video.findUnique({
+            where: {animeId_episode: {animeId, episode}}
+        });
     }
 
     static async list({where, skip, take, orderBy, include, omit, select}) {
@@ -43,6 +45,18 @@ class VideoDao {
             select: {playCount: true}
         });
         return videos.reduce((sum, v) => sum + (v.playCount || 0), 0);
+    }
+
+    static async getTotalPlayCountByAnimeIds(animeIds) {
+        const result = await prisma.video.groupBy({
+            by: ['animeId'],
+            where: {animeId: {in: animeIds}},
+            _sum: {playCount: true}
+        });
+        return result.map(r => ({
+            animeId: r.animeId,
+            playCount: r._sum.playCount || 0
+        }));
     }
 
     static async update(id, data) {

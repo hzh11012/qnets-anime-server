@@ -1,6 +1,10 @@
 const prisma = require('@core/prisma');
 
 class DanmakuDao {
+    static async create(data) {
+        return await prisma.danmaku.create({data});
+    }
+
     static async delete(id) {
         return await prisma.danmaku.delete({where: {id}});
     }

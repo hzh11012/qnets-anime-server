@@ -13,7 +13,7 @@ class NoticeDao {
         return await prisma.notice.findUnique({where: {id}});
     }
 
-    static async list({where, skip, take, orderBy, include, omit}) {
+    static async list({where, skip, take, orderBy, include, omit, select}) {
         const [total, rows] = await Promise.all([
             prisma.notice.count({where}),
             prisma.notice.findMany({
@@ -22,6 +22,7 @@ class NoticeDao {
                 take,
                 orderBy,
                 include,
+                select,
                 omit
             })
         ]);

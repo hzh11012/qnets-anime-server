@@ -1,5 +1,5 @@
 const Zod = require('zod');
-const {validate} = require('@validators/server/common');
+const {validate, commonIdValidator} = require('@validators/common');
 
 const AnimeOptionValidator = parameter => {
     const schema = Zod.object({
@@ -30,7 +30,21 @@ const AnimeGuessLikeListValidator = parameter => {
     return validate(schema, parameter);
 };
 
+const AnimeDetailValidator = parameter => {
+    const schema = Zod.object({
+        videoId: Zod.string({
+            required_error: 'id 不能为空',
+            invalid_type_error: 'id 类型错误'
+        })
+            .max(255, 'id 长度不能超过255')
+            .min(1, 'id 不能为空')
+    });
+    return validate(schema, parameter);
+};
+
 module.exports = {
     AnimeOptionValidator,
-    AnimeGuessLikeListValidator
+    AnimeGuessLikeListValidator,
+    AnimeDetailValidator,
+    AnimeRecommendValidator: commonIdValidator
 };

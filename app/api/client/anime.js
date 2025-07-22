@@ -5,7 +5,9 @@ const auth = require('@middleware/auth');
 const {PREFIX, CLIENT_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {
     AnimeOptionValidator,
-    AnimeGuessLikeListValidator
+    AnimeGuessLikeListValidator,
+    AnimeDetailValidator,
+    AnimeRecommendValidator
 } = require('@validators/client/anime');
 const res = new Resolve();
 
@@ -38,11 +40,37 @@ router.get(
     `/${PATH}/guess-you-like`,
     auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
     async ctx => {
-        const userId = ctx.auth.uid;
+        const userId = ctx.auth.userId;
         const params = AnimeGuessLikeListValidator(ctx.request.query);
         const list = await AnimeService.guessYouLike({userId, ...params});
         ctx.status = 200;
         ctx.body = res.json(list, '猜你喜欢获取成功');
+    }
+);
+
+// 动漫推荐
+router.get(
+    `/${PATH}/recommend/:id`,
+    auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const userId = ctx.auth.userId;
+        const params = AnimeRecommendValidator(ctx.params);
+        const list = await AnimeService.recommend({userId, animeId: params.id});
+        ctx.status = 200;
+        ctx.body = res.json(list, '动漫推荐获取成功');
+    }
+);
+
+// 动漫详情
+router.get(
+    `/${PATH}/:videoId`,
+    auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const userId = ctx.auth.userId;
+        const params = AnimeDetailValidator(ctx.params);
+        const data = await AnimeService.detail({userId, ...params});
+        ctx.status = 200;
+        ctx.body = res.json(data, '动漫详情获取成功');
     }
 );
 
