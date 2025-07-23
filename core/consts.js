@@ -544,6 +544,11 @@ const CLIENT_API_PERMISSIONS = [
         name: '前台接口：系统公告',
         permission: `${CLIENT_PREFIX}:notices:${PERM.VIEW}`,
         system: 1
+    },
+    {
+        name: '前台接口：创建留言',
+        permission: `${CLIENT_PREFIX}:messages:${PERM.CREATE}`,
+        system: 1
     }
 ];
 

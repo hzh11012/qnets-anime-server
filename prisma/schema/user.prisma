@@ -91,8 +91,8 @@ model Message {
     content String  @db.VarChar(1000)
     /// 回复
     reply   String? @db.VarChar(1000)
-    /// 留言状态 留言状态 0-待处理 1-处理中 2-已完成 3-已关闭
-    status  Int     @db.UnsignedTinyInt
+    /// 留言状态 0-待处理 1-处理中 2-已完成 3-已关闭
+    status  Int     @default(0) @db.UnsignedTinyInt
 
     /// 创建时间
     createdAt DateTime @default(now())

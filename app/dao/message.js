@@ -1,6 +1,10 @@
 const prisma = require('@core/prisma');
 
 class MessageDao {
+    static async create(data) {
+        return await prisma.message.create({data});
+    }
+
     static async delete(id) {
         return await prisma.message.delete({where: {id}});
     }
