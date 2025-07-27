@@ -59,6 +59,9 @@ InitManager.initCore(app);
 
 const httpServer = createServer(app.callback());
 
+// 定时任务
+require('@scripts/genHotRank');
+
 httpServer.listen(process.env.NODE_PORT, () =>
     console.log(
         `当前 Node.js 服务已启动，地址: http://localhost:${process.env.NODE_PORT}`

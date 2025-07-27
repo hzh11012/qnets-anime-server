@@ -4,6 +4,7 @@
         "paths": {
             "@*": ["*"],
             "@core/*": ["core/*"],
+            "@scripts/*": ["scripts/*"],
             "@api/*": ["app/api/*"],
             "@dao/*": ["app/dao/*"],
             "@service/*": ["app/service/*"],

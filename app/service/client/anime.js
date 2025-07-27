@@ -5,6 +5,10 @@ const VideoHistoryDao = require('@dao/video-history');
 const VideoDao = require('@dao/video');
 const {ANIEM_TYPE_4_PERMISSION, ADMIN} = require('@core/consts');
 const {Forbidden, NotFound} = require('@core/http-exception');
+const redis = require('@core/redis');
+
+// 缓存过期时间（1小时）
+const CACHE_TTL = 1 * 60 * 60;
 
 class AnimeService {
     /**
@@ -85,8 +89,9 @@ class AnimeService {
      * @param {number} page - 页码 [可选]
      * @param {number} pageSize - 每页数量 [可选]
      * @param {string} userId 当前用户ID
+     * @param {string[]} permissions 当前用户权限
      */
-    static async guessYouLike({page = 1, pageSize = 10, userId}) {
+    static async guessYouLike({page = 1, pageSize = 10, userId, permissions}) {
         // 获取用户行为动漫ID
         const [myRatings, myCollections, myHistories] = await Promise.all([
             AnimeRatingDao.findByUserId(userId),
@@ -102,7 +107,7 @@ class AnimeService {
 
         if (!myAnimeIds.length) {
             // 没有行为，返回热门动漫
-            return this.popular({userId, page, pageSize});
+            return this.popular({userId, permissions, page, pageSize});
         }
 
         // 找出兴趣相似用户
@@ -115,18 +120,25 @@ class AnimeService {
 
         if (!similarUserIds.length) {
             // 没有相似用户，返回热门动漫
-            return this.popular({userId, page, pageSize});
+            return this.popular({userId, permissions, page, pageSize});
         }
 
+        // 是否允许查询里番
+        const isAllowAnimeType4 = [
+            ADMIN,
+            ANIEM_TYPE_4_PERMISSION.permission
+        ].some(p => permissions.includes(p));
+
+        const where = isAllowAnimeType4 ? {} : {type: {not: 4}};
         // 获取这些相似用户评分、收藏、历史的所有动漫
         const [
             similarUserRatings,
             similarUserCollections,
             similarUserHistories
         ] = await Promise.all([
-            AnimeRatingDao.findByUserIds(similarUserIds),
-            AnimeCollectionDao.findByUserIds(similarUserIds),
-            VideoHistoryDao.findByUserIds(similarUserIds)
+            AnimeRatingDao.findByUserIds(similarUserIds, where),
+            AnimeCollectionDao.findByUserIds(similarUserIds, where),
+            VideoHistoryDao.findByUserIds(similarUserIds, where)
         ]);
 
         // 统计动漫出现频率（评分、收藏、历史都算，评分高权重更高）
@@ -398,11 +410,113 @@ class AnimeService {
         }
     }
 
-    static async popular({page, userId, pageSize}) {
+    /**
+     * @title 获取热门动漫排行
+     * @param {number} page - 页码 [可选]
+     * @param {number} pageSize - 每页数量 [可选]
+     * @param {string[]} permissions 当前用户权限
+     */
+    static async hotRank({page = 1, pageSize = 10, permissions}) {
+        // 是否允许查询里番
+        const isAllowAnimeType4 = [
+            ADMIN,
+            ANIEM_TYPE_4_PERMISSION.permission
+        ].some(p => permissions.includes(p));
+
+        let rows, total;
+        const CACHE_KEY = isAllowAnimeType4
+            ? 'rank:with_type4'
+            : 'rank:without_type4';
+
+        let cacheData = await redis.get(CACHE_KEY);
+        if (cacheData) {
+            cacheData = JSON.parse(cacheData);
+            rows = cacheData.rows;
+            total = cacheData.total;
+        } else {
+            const params = {
+                where: isAllowAnimeType4 ? {} : {type: {not: 4}},
+                select: {
+                    id: true,
+                    name: true,
+                    seasonName: true,
+                    remark: true,
+                    coverUrl: true,
+                    status: true,
+                    type: true,
+                    _count: {
+                        select: {
+                            animeRatings: true,
+                            animeCollections: true
+                        }
+                    },
+                    videos: {
+                        orderBy: {episode: 'asc'},
+                        select: {id: true, playCount: true}
+                    }
+                }
+            };
+
+            const data = await AnimeDao.list(params);
+
+            rows = data.rows
+                .map(anime => {
+                    const {
+                        videos = [],
+                        name,
+                        seasonName,
+                        _count,
+                        ...rest
+                    } = anime;
+                    const playCount = videos.reduce(
+                        (sum, v) => sum + v.playCount,
+                        0
+                    );
+                    const videoCount = videos.length || 0;
+                    const videoId = videos[0]?.id || undefined;
+                    const ratingCount = _count.animeRatings;
+                    const collectionCount = _count.animeCollections;
+                    const score =
+                        playCount * 0.5 +
+                        ratingCount * 0.3 +
+                        collectionCount * 0.2;
+                    return {
+                        ...rest,
+                        name: (name + ' ' + seasonName).trim(),
+                        videoId,
+                        videoCount,
+                        score
+                    };
+                })
+                .sort((a, b) => b.score - a.score);
+            total = data.total;
+
+            // 缓存结果
+            await redis.set(
+                CACHE_KEY,
+                JSON.stringify({rows, total}),
+                CACHE_TTL
+            );
+        }
+
+        const start = (page - 1) * pageSize;
+        const data = rows.slice(start, start + pageSize);
+
+        return {rows: data, total};
+    }
+
+    static async popular({page, pageSize, userId, permissions}) {
         try {
+            // 是否允许查询里番
+            const isAllowAnimeType4 = [
+                ADMIN,
+                ANIEM_TYPE_4_PERMISSION.permission
+            ].some(p => permissions.includes(p));
+
             const params = {
                 skip: (page - 1) * pageSize,
                 take: pageSize,
+                where: isAllowAnimeType4 ? {} : {type: {not: 4}},
                 orderBy: [
                     {animeCollections: {_count: 'desc'}},
                     {animeRatings: {_count: 'desc'}},

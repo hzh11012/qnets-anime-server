@@ -23,9 +23,9 @@ class AnimeCollectionDao {
         return await prisma.animeCollection.findMany({where: {userId}});
     }
 
-    static async findByUserIds(userIds) {
+    static async findByUserIds(userIds, where) {
         return await prisma.animeCollection.findMany({
-            where: {userId: {in: userIds}}
+            where: {userId: {in: userIds}, ...where}
         });
     }
 
