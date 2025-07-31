@@ -26,8 +26,6 @@ class AnimeBannerService {
 
             const animeIds = banners.map(item => item.animeId);
 
-            console.log('animeIds', animeIds);
-
             if (!animeIds.length) {
                 return {total: 0, rows: []};
             }
