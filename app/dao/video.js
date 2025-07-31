@@ -13,6 +13,10 @@ class VideoDao {
         return await prisma.video.findUnique({where: {id}, select});
     }
 
+    static async findByIdAndAnimeId(id, animeId) {
+        return await prisma.video.findFirst({where: {id, animeId}});
+    }
+
     static async findByAnimeIdAndEpisode(animeId, episode) {
         return await prisma.video.findUnique({
             where: {animeId_episode: {animeId, episode}}

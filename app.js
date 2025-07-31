@@ -59,8 +59,12 @@ InitManager.initCore(app);
 
 const httpServer = createServer(app.callback());
 
+// 动漫索引
+require('@scripts/initAnimeIndex');
+require('@scripts/initUserBehavior');
 // 定时任务
-require('@scripts/genHotRank');
+require('@scripts/syncAnime');
+require('@scripts/syncUserBehavior');
 
 httpServer.listen(process.env.NODE_PORT, () =>
     console.log(

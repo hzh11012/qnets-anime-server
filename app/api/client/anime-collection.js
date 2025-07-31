@@ -20,8 +20,12 @@ router.get(
     `/${PATH}/options`,
     auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
     async ctx => {
+        const permissions = ctx.auth.permissions;
         const userId = ctx.auth.userId;
-        const options = await AnimeCollectionService.options({id: userId});
+        const options = await AnimeCollectionService.options({
+            id: userId,
+            permissions
+        });
         ctx.status = 200;
         ctx.body = res.json(options, '动漫追番获取成功');
     }

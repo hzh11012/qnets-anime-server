@@ -35,7 +35,7 @@ const DanmakuCreateValidator = parameter => {
         time: Zod.number({
             required_error: 'time 不能为空',
             invalid_type_error: 'time 类型错误'
-        })
+        }).min(0, 'time 最小为0')
     });
     return validate(schema, parameter);
 };

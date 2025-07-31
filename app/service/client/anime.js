@@ -1,14 +1,10 @@
-const AnimeDao = require('@dao/anime');
 const AnimeRatingDao = require('@dao/anime-rating');
 const AnimeCollectionDao = require('@dao/anime-collection');
 const VideoHistoryDao = require('@dao/video-history');
 const VideoDao = require('@dao/video');
 const {ANIEM_TYPE_4_PERMISSION, ADMIN} = require('@core/consts');
 const {Forbidden, NotFound} = require('@core/http-exception');
-const redis = require('@core/redis');
-
-// 缓存过期时间（1小时）
-const CACHE_TTL = 1 * 60 * 60;
+const elastic = require('@core/es');
 
 class AnimeService {
     /**
@@ -28,57 +24,34 @@ class AnimeService {
             if (type === 4 && !isAllowAnimeType4)
                 throw new Forbidden('权限不足');
 
-            const params = {
-                take: 7,
-                orderBy: [{year: 'desc'}, {month: 'desc'}, {updatedAt: 'desc'}],
-                where: {type},
-                select: {
-                    id: true,
-                    name: true,
-                    seasonName: true,
-                    remark: true,
-                    coverUrl: true,
-                    status: true,
-                    _count: {select: {videos: true}},
-                    videoHistories: {
-                        where: {userId},
-                        select: {videoId: true}
-                    },
-                    videos: {
-                        take: 1,
-                        orderBy: {episode: 'asc'},
-                        select: {id: true}
-                    }
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {bool: {must: [{term: {type: type}}]}},
+                    sort: [
+                        {year: {order: 'desc'}},
+                        {month: {order: 'desc'}},
+                        {updatedAt: {order: 'desc'}}
+                    ],
+                    size: 7,
+                    _source: [
+                        'id',
+                        'name',
+                        'remark',
+                        'coverUrl',
+                        'status',
+                        'videoCount',
+                        'videoId'
+                    ]
                 }
             };
 
-            const {rows, total} = await AnimeDao.list(params);
+            const animes = await elastic.search(queryBody);
 
-            const data = rows.map(
-                ({
-                    _count,
-                    videoHistories,
-                    videos,
-                    name,
-                    seasonName,
-                    ...rest
-                }) => {
-                    let videoId = videos[0]?.id || undefined;
+            const total = animes.hits.hits.length;
+            const rows = await this.formatAnime(animes.hits.hits, userId);
 
-                    if (videoHistories.length) {
-                        videoId = videoHistories[0]?.videoId;
-                    }
-
-                    return {
-                        ...rest,
-                        name: (name + ' ' + seasonName).trim(),
-                        videoCount: _count.videos,
-                        videoId
-                    };
-                }
-            );
-
-            return {total, rows: data};
+            return {total, rows};
         } catch (error) {
             throw error;
         }
@@ -92,79 +65,164 @@ class AnimeService {
      * @param {string[]} permissions 当前用户权限
      */
     static async guessYouLike({page = 1, pageSize = 10, userId, permissions}) {
-        // 获取用户行为动漫ID
-        const [myRatings, myCollections, myHistories] = await Promise.all([
-            AnimeRatingDao.findByUserId(userId),
-            AnimeCollectionDao.findByUserId(userId),
-            VideoHistoryDao.findByUserId(userId)
-        ]);
-
-        const myAnimeIds = [
-            ...myRatings.map(r => r.animeId),
-            ...myCollections.map(c => c.animeId),
-            ...myHistories.map(h => h.animeId)
-        ];
-
-        if (!myAnimeIds.length) {
-            // 没有行为，返回热门动漫
-            return this.popular({userId, permissions, page, pageSize});
-        }
-
-        // 找出兴趣相似用户
-        const allRatings = await AnimeRatingDao.findByAnimeIds(myAnimeIds);
-        const similarUserIds = [
-            ...new Set(
-                allRatings.filter(r => r.userId !== userId).map(r => r.userId)
-            )
-        ];
-
-        if (!similarUserIds.length) {
-            // 没有相似用户，返回热门动漫
-            return this.popular({userId, permissions, page, pageSize});
-        }
-
         // 是否允许查询里番
         const isAllowAnimeType4 = [
             ADMIN,
             ANIEM_TYPE_4_PERMISSION.permission
         ].some(p => permissions.includes(p));
 
-        const where = isAllowAnimeType4 ? {} : {type: {not: 4}};
-        // 获取这些相似用户评分、收藏、历史的所有动漫
-        const [
-            similarUserRatings,
-            similarUserCollections,
-            similarUserHistories
-        ] = await Promise.all([
-            AnimeRatingDao.findByUserIds(similarUserIds, where),
-            AnimeCollectionDao.findByUserIds(similarUserIds, where),
-            VideoHistoryDao.findByUserIds(similarUserIds, where)
-        ]);
+        // 获取当前用户的行为数据
+        const userBehaviors = await elastic.search({
+            index: 'user_behavior_index',
+            body: {
+                query: {bool: {must: [{term: {userId: userId}}]}},
+                size: 1000
+            }
+        });
+
+        if (!userBehaviors.hits.hits.length) {
+            // 没有行为，返回空
+            return {rows: [], total: 0};
+        }
+
+        // 获取用户交互过的动漫ID
+        const userAnimeIds = [
+            ...new Set(userBehaviors.hits.hits.map(hit => hit._source.animeId))
+        ];
+
+        // 找到与当前用户有相似行为的用户
+        const similarUsers = await elastic.search({
+            index: 'user_behavior_index',
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            {terms: {animeId: userAnimeIds}},
+                            {bool: {must_not: [{term: {userId: userId}}]}}
+                        ]
+                    }
+                },
+                aggs: {
+                    similar_users: {
+                        terms: {
+                            field: 'userId',
+                            size: 50,
+                            order: {_count: 'desc'}
+                        },
+                        aggs: {
+                            similarity_score: {
+                                sum: {
+                                    field: 'weight'
+                                }
+                            }
+                        }
+                    }
+                },
+                size: 0
+            }
+        });
+
+        const similarUserBuckets =
+            similarUsers.aggregations.similar_users.buckets;
+
+        if (!similarUserBuckets.length) {
+            // 没有相似用户，返回空
+            return {rows: [], total: 0};
+        }
+
+        // 获取相似用户ID（按相似度排序）
+        const similarUserIds = similarUserBuckets.map(bucket => bucket.key);
+
+        // 获取相似用户的行为数据（排除当前用户已交互的动漫）
+        const similarUserBehaviors = await elastic.search({
+            index: 'user_behavior_index',
+            body: {
+                query: {bool: {must: [{terms: {userId: similarUserIds}}]}},
+                size: 1000
+            }
+        });
 
         // 统计动漫出现频率（评分、收藏、历史都算，评分高权重更高）
         const animeScoreMap = {};
-        for (const r of similarUserRatings) {
-            animeScoreMap[r.animeId] =
-                (animeScoreMap[r.animeId] || 0) + r.score;
-        }
-        for (const c of similarUserCollections) {
-            animeScoreMap[c.animeId] = (animeScoreMap[c.animeId] || 0) + 3;
-        }
-        for (const h of similarUserHistories) {
-            animeScoreMap[h.animeId] = (animeScoreMap[h.animeId] || 0) + 1;
-        }
+
+        similarUserBehaviors.hits.hits.forEach(hit => {
+            const {animeId, weight, userId} = hit._source;
+
+            // 找到该用户的相似度分数
+            const userSimilarity =
+                similarUserBuckets.find(bucket => bucket.key === userId)
+                    ?.similarity_score.value || 1;
+
+            // 计算加权分数
+            const weightedScore = weight * userSimilarity;
+
+            animeScoreMap[animeId] =
+                (animeScoreMap[animeId] || 0) + weightedScore;
+        });
 
         const sortedAnimeIds = Object.entries(animeScoreMap)
             .sort((a, b) => b[1] - a[1])
             .map(([animeId]) => animeId);
 
+        if (!sortedAnimeIds.length) {
+            // 没有动漫，返回空
+            return {rows: [], total: 0};
+        }
+
+        // 从动漫索引获取推荐结果
+        const from = (page - 1) * pageSize;
+        const queryBody = {
+            index: 'anime_index',
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            {terms: {id: sortedAnimeIds.slice(0, 2000)}} // 限制前2000个
+                        ]
+                    }
+                },
+                sort: [
+                    {
+                        _script: {
+                            type: 'number',
+                            script: {
+                                source: `
+                                def animeId = doc['id'].value.toString();
+                                def scores = params.scores;
+                                return scores.containsKey(animeId) ? scores.get(animeId) : 0;
+                            `,
+                                params: {
+                                    scores: animeScoreMap
+                                }
+                            },
+                            order: 'desc'
+                        }
+                    }
+                ],
+                _source: [
+                    'id',
+                    'name',
+                    'remark',
+                    'bannerUrl',
+                    'status',
+                    'videoCount',
+                    'videoId'
+                ],
+                from: from,
+                size: pageSize
+            }
+        };
+
+        if (isAllowAnimeType4) {
+            queryBody.body.query.bool.must_not = [{term: {type: 4}}];
+        }
+        const recommendationResult = await elastic.search(queryBody);
+
         const total = sortedAnimeIds.length;
-        const rows = await this.similar({
-            ids: sortedAnimeIds,
-            userId,
-            page,
-            pageSize
-        });
+        const rows = await this.formatAnime(
+            recommendationResult.hits.hits,
+            userId
+        );
 
         return {rows, total};
     }
@@ -178,6 +236,7 @@ class AnimeService {
         try {
             // 检查视频是否存在
             const video = await VideoDao.findById(videoId, {
+                id: true,
                 animeId: true,
                 episode: true,
                 url: true,
@@ -185,13 +244,26 @@ class AnimeService {
             });
             if (!video) throw new NotFound('视频不存在');
 
-            const anime = await AnimeDao.findById(video.animeId, {
-                name: true,
-                seasonName: true,
-                status: true,
-                description: true
-            });
-            if (!anime) throw new NotFound('动漫不存在');
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {bool: {must: [{term: {id: video.animeId}}]}},
+                    size: 1,
+                    _source: [
+                        'name',
+                        'description',
+                        'status',
+                        'videoCount',
+                        'playCount',
+                        'collectionCount',
+                        'averageRating'
+                    ]
+                }
+            };
+
+            const animes = await elastic.search(queryBody);
+
+            if (!animes.hits.hits.length) throw new NotFound('动漫不存在');
 
             // 用户是否评分
             const isRating = await AnimeRatingDao.findByUserAndAnime(
@@ -200,7 +272,7 @@ class AnimeService {
             );
 
             // 获取视频数量
-            const {rows, total} = await VideoDao.list({
+            const {rows} = await VideoDao.list({
                 where: {animeId: video.animeId},
                 select: {id: true, episode: true, title: true},
                 orderBy: {episode: 'asc'}
@@ -212,41 +284,21 @@ class AnimeService {
                 video.animeId
             );
 
-            // 平均评分
-            const avgRating = await AnimeRatingDao.getAvgRating(video.animeId);
-
-            // 播放量
-            const playCount = await VideoDao.getTotalPlayCountByAnimeId(
-                video.animeId
-            );
-
-            // 收藏量
-            const collectionCount = await AnimeCollectionDao.countByAnimeId(
-                video.animeId
-            );
-
             // 播放历史
-            const history = await VideoHistoryDao.find({
+            const history = await VideoHistoryDao.findFirst({
                 where: {userId, videoId},
                 select: {time: true}
             });
 
-            const {name, seasonName, ...rest} = anime;
+            const anime = animes.hits.hits[0]._source;
 
             return {
-                anime: {
-                    ...rest,
-                    name: (name + ' ' + seasonName).trim()
-                },
+                ...anime,
+                time: history?.time ? history.time : undefined,
                 video,
                 videoList: rows,
-                rating: isRating ? isRating.score : undefined,
                 isCollected: !!isCollected,
-                avgRating,
-                playCount,
-                videoCount: total,
-                time: history?.time ? history.time : undefined,
-                collectionCount
+                isRating: !!isRating
             };
         } catch (error) {
             throw error;
@@ -261,150 +313,109 @@ class AnimeService {
     static async recommend({userId, animeId}) {
         try {
             // 检查动漫是否存在
-            const anime = await AnimeDao.findById(animeId, {
-                type: true,
-                animeTags: true,
-                animeSeriesId: true,
-                director: true,
-                cv: true,
-                year: true
+            const animes = await elastic.search({
+                index: 'anime_index',
+                body: {
+                    query: {term: {id: animeId}},
+                    size: 1,
+                    _source: ['type', 'tags', 'director', 'cv', 'year']
+                }
             });
-            if (!anime) throw new NotFound('动漫不存在');
-            const tags = anime.animeTags.map(tag => tag.id);
+            if (!animes.hits.hits.length) throw new NotFound('动漫不存在');
 
-            const params = {
-                take: 30,
-                orderBy: [{updatedAt: 'desc'}],
-                where: {
-                    id: {not: animeId},
-                    type: anime.type,
-                    animeTags: {some: {id: {in: tags}}}
+            const anime = animes.hits.hits[0]._source;
+            const tags = anime.tags || [];
+
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {
+                        function_score: {
+                            query: {
+                                bool: {
+                                    must: [
+                                        {term: {type: anime.type}},
+                                        {
+                                            bool: {
+                                                must_not: [
+                                                    {term: {id: animeId}}
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    should: [
+                                        // 标签匹配 - 权重最高
+                                        {
+                                            terms: {
+                                                tags: tags,
+                                                boost: 5.0
+                                            }
+                                        },
+                                        // 同导演
+                                        anime.director
+                                            ? {
+                                                  match: {
+                                                      director: {
+                                                          query: anime.director,
+                                                          boost: 2.5
+                                                      }
+                                                  }
+                                              }
+                                            : null,
+                                        // 同声优 (模糊匹配)
+                                        anime.cv
+                                            ? {
+                                                  match: {
+                                                      cv: {
+                                                          query: anime.cv,
+                                                          boost: 1.0
+                                                      }
+                                                  }
+                                              }
+                                            : null, // 年份接近
+                                        anime.year
+                                            ? {
+                                                  range: {
+                                                      year: {
+                                                          gte: anime.year - 1,
+                                                          lte: anime.year + 1,
+                                                          boost: 1.0
+                                                      }
+                                                  }
+                                              }
+                                            : null
+                                    ].filter(Boolean)
+                                }
+                            },
+                            score_mode: 'sum',
+                            boost_mode: 'multiply'
+                        }
+                    }
                 },
-                select: {
-                    id: true,
-                    name: true,
-                    remark: true,
-                    coverUrl: true,
-                    status: true,
-                    director: true,
-                    seasonName: true,
-                    cv: true,
-                    year: true,
-                    animeSeriesId: true,
-                    _count: {select: {videos: true, animeCollections: true}},
-                    videoHistories: {
-                        where: {userId},
-                        select: {videoId: true}
-                    },
-                    animeTags: {select: {id: true}},
-                    videos: {
-                        take: 1,
-                        orderBy: {episode: 'asc'},
-                        select: {id: true}
-                    }
-                }
+                size: 10,
+                _source: [
+                    'id',
+                    'name',
+                    'bannerUrl',
+                    'status',
+                    'collectionCount',
+                    'videoCount',
+                    'averageRating',
+                    'playCount',
+                    'videoId'
+                ],
+                sort: [{_score: 'desc'}, {updatedAt: 'desc'}]
             };
 
-            const {rows} = await AnimeDao.list(params);
+            const recommendAnimes = await elastic.search(queryBody);
 
-            const animeIds = rows.map(item => item.id);
-            const [avgRatings, playCounts] = await Promise.all([
-                AnimeRatingDao.getAvgRatingByAnimeIds(animeIds),
-                VideoDao.getTotalPlayCountByAnimeIds(animeIds)
-            ]);
-            const avgRatingMap = {};
-            avgRatings.forEach(r => {
-                avgRatingMap[r.animeId] = r.avg;
-            });
-            const playCountMap = {};
-            playCounts.forEach(r => {
-                playCountMap[r.animeId] = r.playCount;
-            });
-
-            // 计算相似度分数
-            const calcScore = item => {
-                let score = 0;
-                // 标签重合
-                const tagMatch = item.animeTags.filter(t =>
-                    tags.includes(t.id)
-                ).length;
-                score += tagMatch * 5; // 权重5
-
-                // 同系列
-                if (
-                    item.animeSeriesId &&
-                    item.animeSeriesId === anime.animeSeriesId
-                )
-                    score += 3;
-
-                // 同导演
-                if (item.director && item.director === anime.director)
-                    score += 2;
-
-                // 同声优
-                if (
-                    item.cv &&
-                    anime.cv &&
-                    item.cv
-                        .split(',')
-                        .some(cv => anime.cv.split('/').includes(cv))
-                )
-                    score += 1;
-
-                // 年份接近
-                if (
-                    item.year &&
-                    anime.year &&
-                    Math.abs(item.year - anime.year) <= 1
-                )
-                    score += 1;
-
-                // 热度加分（收藏数、评分等）
-                score += (item._count.animeCollections || 0) * 0.2;
-                score += (avgRatingMap[item.id] || 0) * 0.5;
-
-                return score;
-            };
-
-            const sortedRows = rows
-                .map(item => ({
-                    ...item,
-                    similarityScore: calcScore(item)
-                }))
-                .sort((a, b) => b.similarityScore - a.similarityScore)
-                .slice(0, 10);
-
-            const data = sortedRows.map(
-                ({
-                    _count,
-                    videoHistories,
-                    videos,
-                    id,
-                    name,
-                    seasonName,
-                    ...rest
-                }) => {
-                    let videoId = videos[0]?.id || undefined;
-
-                    if (videoHistories.length) {
-                        videoId = videoHistories[0]?.videoId;
-                    }
-
-                    return {
-                        ...rest,
-                        name: (name + ' ' + seasonName).trim(),
-                        collectionCount: _count.videos,
-                        videoCount: _count.videos,
-                        avgRating: avgRatingMap[id] || 0,
-                        playCount: playCountMap[id] || 0,
-                        videoId
-                    };
-                }
+            const total = recommendAnimes.hits.hits.length;
+            const rows = await this.formatAnime(
+                recommendAnimes.hits.hits,
+                userId
             );
-            return {
-                rows: data,
-                total: data.length
-            };
+
+            return {rows, total};
         } catch (error) {
             throw error;
         }
@@ -412,100 +423,12 @@ class AnimeService {
 
     /**
      * @title 获取热门动漫排行
+     * @param {string} userId 当前用户ID
      * @param {number} page - 页码 [可选]
      * @param {number} pageSize - 每页数量 [可选]
      * @param {string[]} permissions 当前用户权限
      */
-    static async hotRank({page = 1, pageSize = 10, permissions}) {
-        // 是否允许查询里番
-        const isAllowAnimeType4 = [
-            ADMIN,
-            ANIEM_TYPE_4_PERMISSION.permission
-        ].some(p => permissions.includes(p));
-
-        let rows, total;
-        const CACHE_KEY = isAllowAnimeType4
-            ? 'rank:with_type4'
-            : 'rank:without_type4';
-
-        let cacheData = await redis.get(CACHE_KEY);
-        if (cacheData) {
-            cacheData = JSON.parse(cacheData);
-            rows = cacheData.rows;
-            total = cacheData.total;
-        } else {
-            const params = {
-                where: isAllowAnimeType4 ? {} : {type: {not: 4}},
-                select: {
-                    id: true,
-                    name: true,
-                    seasonName: true,
-                    remark: true,
-                    coverUrl: true,
-                    status: true,
-                    type: true,
-                    _count: {
-                        select: {
-                            animeRatings: true,
-                            animeCollections: true
-                        }
-                    },
-                    videos: {
-                        orderBy: {episode: 'asc'},
-                        select: {id: true, playCount: true}
-                    }
-                }
-            };
-
-            const data = await AnimeDao.list(params);
-
-            rows = data.rows
-                .map(anime => {
-                    const {
-                        videos = [],
-                        name,
-                        seasonName,
-                        _count,
-                        ...rest
-                    } = anime;
-                    const playCount = videos.reduce(
-                        (sum, v) => sum + v.playCount,
-                        0
-                    );
-                    const videoCount = videos.length || 0;
-                    const videoId = videos[0]?.id || undefined;
-                    const ratingCount = _count.animeRatings;
-                    const collectionCount = _count.animeCollections;
-                    const score =
-                        playCount * 0.5 +
-                        ratingCount * 0.3 +
-                        collectionCount * 0.2;
-                    return {
-                        ...rest,
-                        name: (name + ' ' + seasonName).trim(),
-                        videoId,
-                        videoCount,
-                        score
-                    };
-                })
-                .sort((a, b) => b.score - a.score);
-            total = data.total;
-
-            // 缓存结果
-            await redis.set(
-                CACHE_KEY,
-                JSON.stringify({rows, total}),
-                CACHE_TTL
-            );
-        }
-
-        const start = (page - 1) * pageSize;
-        const data = rows.slice(start, start + pageSize);
-
-        return {rows: data, total};
-    }
-
-    static async popular({page, pageSize, userId, permissions}) {
+    static async hotRank({page = 1, pageSize = 10, userId, permissions}) {
         try {
             // 是否允许查询里番
             const isAllowAnimeType4 = [
@@ -513,116 +436,97 @@ class AnimeService {
                 ANIEM_TYPE_4_PERMISSION.permission
             ].some(p => permissions.includes(p));
 
-            const params = {
-                skip: (page - 1) * pageSize,
-                take: pageSize,
-                where: isAllowAnimeType4 ? {} : {type: {not: 4}},
-                orderBy: [
-                    {animeCollections: {_count: 'desc'}},
-                    {animeRatings: {_count: 'desc'}},
-                    {updatedAt: 'desc'}
-                ],
-                select: {
-                    id: true,
-                    name: true,
-                    seasonName: true,
-                    remark: true,
-                    bannerUrl: true,
-                    status: true,
-                    type: true,
-                    _count: {select: {videos: true}},
-                    videoHistories: {
-                        where: {userId},
-                        select: {videoId: true}
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {
+                        bool: {
+                            must: isAllowAnimeType4
+                                ? []
+                                : [{term: {type: {value: 4, boost: 0}}}],
+                            must_not: isAllowAnimeType4
+                                ? []
+                                : [{term: {type: 4}}]
+                        }
                     },
-                    videos: {
-                        take: 1,
-                        orderBy: {episode: 'asc'},
-                        select: {id: true}
-                    }
+                    sort: [
+                        {
+                            _script: {
+                                type: 'number',
+                                script: {
+                                    source: `
+                                        def playScore = doc['playCount'].value * 0.5;
+                                        def ratingScore = doc['ratingCount'].value * 0.3;
+                                        def collectionScore = doc['collectionCount'].value * 0.2;
+                                        return playScore + ratingScore + collectionScore;
+                                    `,
+                                    lang: 'painless'
+                                },
+                                order: 'desc'
+                            }
+                        }
+                    ],
+                    from: (page - 1) * pageSize,
+                    size: pageSize,
+                    _source: [
+                        'id',
+                        'name',
+                        'remark',
+                        'coverUrl',
+                        'status',
+                        'videoCount',
+                        'videoId'
+                    ]
                 }
             };
-            const {rows, total} = await AnimeDao.list(params);
 
-            // 没有行为，返回热门动漫
-            const data = rows.map(
-                ({
-                    _count,
-                    videoHistories,
-                    videos,
-                    name,
-                    seasonName,
-                    ...rest
-                }) => {
-                    let videoId = videos[0]?.id || undefined;
+            // 获取总数
+            const counts = await elastic.search({
+                index: 'anime_index',
+                body: {query: queryBody.body.query, size: 0}
+            });
 
-                    if (videoHistories.length) {
-                        videoId = videoHistories[0]?.videoId;
-                    }
+            // 获取数据
+            const animes = await elastic.search(queryBody);
 
-                    return {
-                        ...rest,
-                        name: (name + ' ' + seasonName).trim(),
-                        videoCount: _count.videos,
-                        videoId
-                    };
-                }
-            );
+            const total = counts.hits.total.value;
+            const rows = await this.formatAnime(animes.hits.hits, userId);
 
-            return {total, rows: data};
+            return {rows, total};
         } catch (error) {
             throw error;
         }
     }
 
-    static async similar({ids, userId, page, pageSize}) {
-        const start = (page - 1) * pageSize;
-        const currentIds = ids.slice(start, start + pageSize);
+    /**
+     * @title 格式化es的动漫
+     */
+    static async formatAnime(list, userId) {
+        if (!list.length) return [];
+        // 获取用户观看历史（用于确定videoId）
+        const userHistories = await VideoHistoryDao.findByUserId(userId);
+        const userHistoryMap = new Map();
+        userHistories.forEach(history => {
+            userHistoryMap.set(history.animeId, history.videoId);
+        });
 
-        if (!currentIds.length) return [];
+        // 处理ES返回的动漫数据
+        const data = list.map(hit => {
+            const anime = hit._source;
 
-        const params = {
-            where: {id: {in: currentIds}},
-            select: {
-                id: true,
-                name: true,
-                seasonName: true,
-                remark: true,
-                bannerUrl: true,
-                status: true,
-                type: true,
-                _count: {select: {videos: true}},
-                videoHistories: {
-                    where: {userId},
-                    select: {videoId: true}
-                },
-                videos: {
-                    take: 1,
-                    orderBy: {episode: 'asc'},
-                    select: {id: true}
-                }
+            // 确定videoId：优先使用用户观看历史，否则使用默认videoId
+            let videoId = anime.videoId;
+            if (userHistoryMap.has(anime.id)) {
+                videoId = userHistoryMap.get(anime.id);
             }
-        };
-        const {rows} = await AnimeDao.list(params);
 
-        // 按ids顺序排序
-        const animeMap = {};
-        rows.forEach(a => {
-            const {_count, videoHistories, videos, name, seasonName, ...rest} =
-                a;
-            let videoId = videos[0]?.id || undefined;
-
-            if (videoHistories.length) {
-                videoId = videoHistories[0]?.videoId;
-            }
-            animeMap[a.id] = {
-                ...rest,
-                name: (name + ' ' + seasonName).trim(),
-                videoCount: _count.videos,
-                videoId
+            return {
+                ...anime,
+                videoId: videoId
             };
         });
-        return currentIds.map(id => animeMap[id]).filter(Boolean);
+
+        return data;
     }
 }
 

@@ -1,6 +1,6 @@
-const AnimeDao = require('@dao/anime');
-const VideoDao = require('@dao/video');
+const VideoHistoryDao = require('@dao/video-history');
 const {NotFound} = require('@core/http-exception');
+const elastic = require('@core/es');
 
 class AnimeSeries {
     /**
@@ -11,72 +11,84 @@ class AnimeSeries {
     static async list({userId, id}) {
         try {
             // 检查动漫是否存在
-            const anime = await AnimeDao.findById(id, {animeSeriesId: true});
-            if (!anime) throw new NotFound('动漫不存在');
-
-            const params = {
-                where: {id: {not: id}, animeSeriesId: anime.animeSeriesId},
-                orderBy: [{season: 'asc'}],
-                select: {
-                    id: true,
-                    name: true,
-                    seasonName: true,
-                    coverUrl: true,
-                    status: true,
-                    _count: {select: {videos: true, animeCollections: true}},
-                    videoHistories: {
-                        where: {userId},
-                        select: {videoId: true}
-                    },
-                    videos: {
-                        take: 1,
-                        orderBy: {episode: 'asc'},
-                        select: {id: true}
-                    }
+            const animes = await elastic.search({
+                index: 'anime_index',
+                body: {
+                    query: {term: {id}},
+                    size: 1,
+                    _source: ['seriesId']
                 }
+            });
+            if (!animes.hits.hits.length) throw new NotFound('动漫不存在');
+
+            const anime = animes.hits.hits[0]._source;
+
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {
+                        bool: {
+                            must: [
+                                {term: {seriesId: anime.seriesId}},
+                                {bool: {must_not: [{term: {id}}]}}
+                            ]
+                        }
+                    }
+                },
+                size: 1000,
+                _source: [
+                    'id',
+                    'name',
+                    'bannerUrl',
+                    'status',
+                    'collectionCount',
+                    'videoCount',
+                    'playCount',
+                    'videoId'
+                ],
+                sort: [{season: 'asc'}]
             };
 
-            const {rows, total} = await AnimeDao.list(params);
+            const seriesAnimes = await elastic.search(queryBody);
 
-            const animeIds = rows.map(item => item.id);
-            const playCounts =
-                await VideoDao.getTotalPlayCountByAnimeIds(animeIds);
-            const playCountMap = {};
-            playCounts.forEach(r => {
-                playCountMap[r.animeId] = r.playCount;
-            });
+            const total = seriesAnimes.hits.hits.length;
+            const rows = await this.formatAnime(seriesAnimes.hits.hits, userId);
 
-            const data = rows.map(
-                ({
-                    _count,
-                    videoHistories,
-                    videos,
-                    name,
-                    id,
-                    seasonName,
-                    ...rest
-                }) => {
-                    let videoId = videos[0]?.id || undefined;
-
-                    if (videoHistories.length) {
-                        videoId = videoHistories[0]?.videoId;
-                    }
-
-                    return {
-                        ...rest,
-                        name: (name + ' ' + seasonName).trim(),
-                        collectionCount: _count.videos,
-                        videoCount: _count.videos,
-                        playCount: playCountMap[id] || 0,
-                        videoId
-                    };
-                }
-            );
-
-            return {total, rows: data};
+            return {total, rows};
         } catch (error) {
             throw error;
         }
+    }
+
+    /**
+     * @title 格式化es的动漫
+     */
+    static async formatAnime(list, userId) {
+        if (!list.length) return [];
+        // 获取用户观看历史（用于确定videoId）
+        const userHistories = await VideoHistoryDao.findByUserId(userId);
+        const userHistoryMap = new Map();
+        userHistories.forEach(history => {
+            userHistoryMap.set(history.animeId, history.videoId);
+        });
+
+        // 处理ES返回的动漫数据
+        const data = list.map(hit => {
+            const anime = hit._source;
+
+            // 确定videoId：优先使用用户观看历史，否则使用默认videoId
+            let videoId = anime.videoId;
+            if (userHistoryMap.has(anime.id)) {
+                videoId = userHistoryMap.get(anime.id);
+            }
+
+            return {
+                ...anime,
+                videoId: videoId
+            };
+        });
+
+        return data;
     }
 }
 

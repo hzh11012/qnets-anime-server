@@ -1,9 +1,12 @@
 const AnimeBannerDao = require('@dao/anime-banner');
+const VideoHistoryDao = require('@dao/video-history');
 const {ANIEM_TYPE_4_PERMISSION, ADMIN} = require('@core/consts');
+const elastic = require('@core/es');
 
 class AnimeBannerService {
     /**
      * @title 首页轮播
+     * @param {string} userId 当前用户ID
      * @param {string[]} permissions 当前用户权限
      */
     static async options({permissions, userId}) {
@@ -14,52 +17,70 @@ class AnimeBannerService {
                 ANIEM_TYPE_4_PERMISSION.permission
             ].some(p => permissions.includes(p));
 
-            const params = {
+            const {rows: banners} = await AnimeBannerDao.list({
                 take: 7,
                 orderBy: {createdAt: 'desc'},
                 where: isAllowAnimeType4 ? {} : {anime: {type: {not: 4}}},
-                include: {
-                    anime: {
-                        select: {
-                            name: true,
-                            bannerUrl: true,
-                            status: true,
-                            _count: {select: {videos: true}},
-                            videoHistories: {
-                                where: {userId},
-                                select: {videoId: true}
-                            },
-                            videos: {
-                                take: 1,
-                                orderBy: {episode: 'asc'},
-                                select: {id: true}
-                            }
-                        }
-                    }
+                select: {animeId: true}
+            });
+
+            const animeIds = banners.map(item => item.animeId);
+
+            console.log('animeIds', animeIds);
+
+            if (!animeIds.length) {
+                return {total: 0, rows: []};
+            }
+
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {bool: {must: [{terms: {id: animeIds}}]}}
                 },
-                omit: {createdAt: true, updatedAt: true}
+                size: animeIds.length,
+                _source: [
+                    'id',
+                    'name',
+                    'bannerUrl',
+                    'status',
+                    'videoCount',
+                    'videoId'
+                ]
             };
 
-            const {rows, total} = await AnimeBannerDao.list(params);
+            const animes = await elastic.search(queryBody);
 
-            const data = rows.map(({animeId, anime}) => {
-                const {videoHistories, videos, _count, ...rest} = anime;
+            if (!animes.hits.hits.length) {
+                return {total: 0, rows: []};
+            }
 
-                let videoId = videos[0]?.id || undefined;
+            // 获取用户观看历史（用于确定videoId）
+            const userHistories = await VideoHistoryDao.findMany({
+                where: {userId, animeId: {in: animeIds}},
+                select: {animeId: true, videoId: true}
+            });
+            const userHistoryMap = new Map();
+            userHistories.forEach(history => {
+                userHistoryMap.set(history.animeId, history.videoId);
+            });
 
-                if (videoHistories.length) {
-                    videoId = videoHistories[0]?.videoId;
+            const total = animes.hits.hits.length;
+            const rows = animes.hits.hits.map(hit => {
+                const anime = hit._source;
+
+                // 确定videoId：优先使用用户观看历史，否则使用默认videoId
+                let videoId = anime.videoId;
+                if (userHistoryMap.has(anime.id)) {
+                    videoId = userHistoryMap.get(anime.id);
                 }
 
                 return {
-                    id: animeId,
-                    videoId,
-                    videoCount: _count.videos,
-                    ...rest
+                    ...anime,
+                    videoId: videoId
                 };
             });
 
-            return {total, rows: data};
+            return {total, rows};
         } catch (error) {
             throw error;
         }

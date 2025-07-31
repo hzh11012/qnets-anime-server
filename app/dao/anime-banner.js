@@ -17,7 +17,7 @@ class AnimeBannerDao {
         return await prisma.animeBanner.findUnique({where: {animeId}});
     }
 
-    static async list({where, skip, take, orderBy, include, omit}) {
+    static async list({where, skip, take, orderBy, select, include, omit}) {
         const [total, rows] = await Promise.all([
             prisma.animeBanner.count({where}),
             prisma.animeBanner.findMany({
@@ -25,6 +25,7 @@ class AnimeBannerDao {
                 skip,
                 take,
                 orderBy,
+                select,
                 include,
                 omit
             })

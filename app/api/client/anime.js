@@ -59,10 +59,12 @@ router.get(
     `/${PATH}/hot-rank`,
     auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
     async ctx => {
+        const userId = ctx.auth.userId;
         const permissions = ctx.auth.permissions;
         const params = AnimeHotRankValidator(ctx.request.query);
         const list = await AnimeService.hotRank({
             permissions,
+            userId,
             ...params
         });
         ctx.status = 200;

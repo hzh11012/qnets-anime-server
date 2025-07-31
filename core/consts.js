@@ -498,7 +498,7 @@ const CLIENT_API_PERMISSIONS = [
         system: 1
     },
     {
-        // 包含 首页动漫、动漫搜索
+        // 包含 首页动漫、动漫搜索、热榜
         name: '前台接口：动漫查询',
         permission: `${CLIENT_PREFIX}:animes:${PERM.VIEW}`,
         system: 1
@@ -548,6 +548,16 @@ const CLIENT_API_PERMISSIONS = [
     {
         name: '前台接口：创建留言',
         permission: `${CLIENT_PREFIX}:messages:${PERM.CREATE}`,
+        system: 1
+    },
+    {
+        name: '前台接口：添加播放量',
+        permission: `${CLIENT_PREFIX}:videos:${PERM.CREATE}`,
+        system: 1
+    },
+    {
+        name: '前台接口：保存历史记录',
+        permission: `${CLIENT_PREFIX}:video-histories:${PERM.CREATE}`,
         system: 1
     }
 ];

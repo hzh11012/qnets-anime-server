@@ -27,6 +27,7 @@
         "prisma": "^6.8.2"
     },
     "dependencies": {
+        "@elastic/elasticsearch": "^8.18.2",
         "@koa/bodyparser": "^5.1.2",
         "@koa/cors": "^5.0.0",
         "@prisma/client": "^6.8.2",

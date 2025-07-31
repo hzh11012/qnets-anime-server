@@ -1,30 +1,110 @@
 const AnimeCollectionDao = require('@dao/anime-collection');
 const AnimeDao = require('@dao/anime');
+const VideoHistoryDao = require('@dao/video-history');
 const {NotFound, Existing} = require('@core/http-exception');
+const {ANIEM_TYPE_4_PERMISSION, ADMIN} = require('@core/consts');
+const elastic = require('@core/es');
 
 class AnimeCollectionService {
     /**
      * @title 首页我的追番
      * @param {string[]} id 当前用户ID
+     * @param {string[]} permissions 当前用户权限
      */
-    static async options({id}) {
+    static async options({permissions, id}) {
         try {
-            const params = {
-                where: {userId: id},
-                page: 1,
-                pageSize: 5,
-                userId: id
-            };
-            const {rows, total} = await AnimeCollectionDao.rawOptions(params);
+            // 是否允许查询里番
+            const isAllowAnimeType4 = [
+                ADMIN,
+                ANIEM_TYPE_4_PERMISSION.permission
+            ].some(p => permissions.includes(p));
 
-            const data = rows.map(item => {
-                const {videoId, latestVideoId, ...rest} = item;
+            const {rows: collections, total} = await AnimeCollectionDao.list({
+                where: isAllowAnimeType4
+                    ? {userId: id}
+                    : {userId: id, anime: {type: {not: 4}}},
+                select: {animeId: true},
+                orderBy: {createdAt: 'desc'},
+                skip: 1,
+                take: 5
+            });
+
+            const animeIds = collections.map(item => item.animeId);
+
+            if (!animeIds.length) {
+                return {total: 0, rows: []};
+            }
+
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {bool: {must: [{terms: {id: animeIds}}]}},
+                    sort: [
+                        {
+                            _script: {
+                                type: 'number',
+                                script: {
+                                    source: `
+                                        def order = ['${animeIds.join("','")}'];
+                                        def index = order.indexOf(doc['id'].value);
+                                        return index >= 0 ? index : 999;
+                                    `,
+                                    lang: 'painless'
+                                },
+                                order: 'asc'
+                            }
+                        }
+                    ],
+                    size: animeIds.length,
+                    _source: [
+                        'id',
+                        'name',
+                        'bannerUrl',
+                        'status',
+                        'videoCount',
+                        'videoId'
+                    ]
+                }
+            };
+
+            const animes = await elastic.search(queryBody);
+
+            if (!animes.hits.hits.length) {
+                return {total: 0, rows: []};
+            }
+
+            // 获取用户观看历史（用于确定videoId）
+            const userHistories = await VideoHistoryDao.findMany({
+                where: {userId: id, animeId: {in: animeIds}},
+                select: {
+                    animeId: true,
+                    videoId: true,
+                    time: true,
+                    video: {select: {episode: true}}
+                },
+                orderBy: {updatedAt: 'desc'}
+            });
+
+            const animeMap = new Map();
+
+            animes.hits.hits.forEach(hit => {
+                const {id, ...anime} = hit._source;
+                animeMap.set(id, anime);
+            });
+
+            const rows = userHistories.map(history => {
+                const {animeId, video, ...rest} = history;
+                const anime = animeMap.get(animeId);
+
                 return {
-                    ...rest,
-                    videoId: videoId || latestVideoId
+                    episode: video.episode,
+                    id: animeId,
+                    ...anime,
+                    ...rest
                 };
             });
-            return {total, rows: data};
+
+            return {rows, total};
         } catch (error) {
             throw error;
         }
