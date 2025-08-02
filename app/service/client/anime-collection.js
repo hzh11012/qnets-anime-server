@@ -25,7 +25,6 @@ class AnimeCollectionService {
                     : {userId: id, anime: {type: {not: 4}}},
                 select: {animeId: true},
                 orderBy: {createdAt: 'desc'},
-                skip: 1,
                 take: 5
             });
 

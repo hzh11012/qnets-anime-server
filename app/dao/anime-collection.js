@@ -13,7 +13,7 @@ class AnimeCollectionDao {
         return await prisma.animeCollection.findUnique({where: {id}});
     }
 
-    static async list({where, skip, take, orderBy, include, omit}) {
+    static async list({where, skip, take, orderBy, select, include, omit}) {
         const [total, rows] = await Promise.all([
             prisma.animeCollection.count({where}),
             prisma.animeCollection.findMany({
@@ -21,6 +21,7 @@ class AnimeCollectionDao {
                 skip,
                 take,
                 orderBy,
+                select,
                 include,
                 omit
             })
