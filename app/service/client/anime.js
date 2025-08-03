@@ -496,7 +496,7 @@ class AnimeService {
     }
 
     /**
-     * @tital 获取动漫搜索建议
+     * @title 获取动漫搜索建议
      * @param {string} keyword 搜索词
      * @param {string[]} permissions 当前用户权限
      */
@@ -589,6 +589,190 @@ class AnimeService {
             const total = rows.length;
 
             return {rows, total};
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * @title 获取动漫筛选
+     * @param {string} userId 当前用户ID
+     * @param {string[]} permissions 当前用户权限
+     * @param {number} page - 页码 [可选]
+     * @param {number} pageSize - 每页数量 [可选]
+     * @param {number} order 排序方式 0-最多追番 1-最多播放 2-最近更新 3-最高评分 [可选]
+     * @param {number} type 动漫类型 0-剧场版 1-日番 2-美番 3-国番 4-里番 [可选]
+     * @param {string} tag 动漫分类 [可选]
+     * @param {number} status 动漫状态 0-即将上线 1-连载中 2-已完结 [可选]
+     * @param {string} year 动漫发行年份范围 [xxxx,xxxx) [可选]
+     * @param {number} month 动漫发行月份 0-一月番 1-四月番 2-七月番 3-十月番 [可选]
+     */
+    static async bangumi({
+        page = 1,
+        pageSize = 10,
+        userId,
+        permissions,
+        order,
+        type,
+        tag,
+        status,
+        year,
+        month
+    }) {
+        try {
+            // 是否允许查询里番
+            const isAllowAnimeType4 = [
+                ADMIN,
+                ANIEM_TYPE_4_PERMISSION.permission
+            ].some(p => permissions.includes(p));
+
+            // 权限检查：如果不允许查询里番但type为4，则抛出异常
+            if (type === 4 && !isAllowAnimeType4) {
+                throw new Forbidden('权限不足');
+            }
+
+            // 构建查询条件
+            const must = [];
+            const mustNot = [];
+
+            // 动漫类型筛选
+            if (type !== undefined && type !== null) {
+                must.push({term: {type: type}});
+            } else if (!isAllowAnimeType4) {
+                // 如果不指定类型且不允许查询里番，则排除里番
+                mustNot.push({term: {type: 4}});
+            }
+
+            // 动漫分类筛选
+            if (tag) {
+                must.push({term: {tags: tag}});
+            }
+
+            // 动漫状态筛选
+            if (status !== undefined && status !== null) {
+                must.push({term: {status: status}});
+            }
+
+            // 年份范围筛选
+            if (year) {
+                try {
+                    const yearStr = year.toString();
+                    const rangeMatch = yearStr.match(
+                        /^([\[\(])(\d+),(\d+)([\]\)])$/
+                    );
+
+                    if (rangeMatch) {
+                        const leftBracket = rangeMatch[1]; // [ 或 (
+                        const startYear = parseInt(rangeMatch[2], 10);
+                        const endYear = parseInt(rangeMatch[3], 10);
+                        const rightBracket = rangeMatch[4]; // ] 或 )
+
+                        const rangeQuery = {range: {year: {}}};
+
+                        // 根据左括号类型设置开始条件
+                        if (leftBracket === '[') {
+                            // [start, ... 包含开始年份
+                            rangeQuery.range.year.gte = startYear;
+                        } else {
+                            // (start, ... 不包含开始年份
+                            rangeQuery.range.year.gt = startYear;
+                        }
+
+                        // 根据右括号类型设置结束条件
+                        if (rightBracket === ']') {
+                            // ..., end] 包含结束年份
+                            rangeQuery.range.year.lte = endYear;
+                        } else {
+                            // ..., end) 不包含结束年份
+                            rangeQuery.range.year.lt = endYear;
+                        }
+                        must.push(rangeQuery);
+                    }
+                } catch (error) {
+                    // 如果年份格式不正确，忽略该筛选条件
+                }
+            }
+
+            // 月份筛选
+            if (month !== undefined && month !== null) {
+                must.push({term: {month: month}});
+            }
+
+            // 构建排序条件
+            let sort = [];
+            if (order !== undefined && order !== null) {
+                // 指定排序方式
+                switch (order) {
+                    case 0: // 最多追番
+                        sort.push({collectionCount: {order: 'desc'}});
+                        break;
+                    case 1: // 最多播放
+                        sort.push({playCount: {order: 'desc'}});
+                        break;
+                    case 2: // 最近更新
+                        sort.push({updatedAt: {order: 'desc'}});
+                        break;
+                    case 3: // 最高评分
+                        sort.push({averageRating: {order: 'desc'}});
+                        break;
+                }
+            } else {
+                // 综合排序：结合播放量、评分、追番数等多个维度
+                sort.push({
+                    _script: {
+                        type: 'number',
+                        script: {
+                            source: `
+                                def playScore = doc['playCount'].value * 0.4;
+                                def ratingScore = doc['averageRating'].value * 0.3;
+                                def collectionScore = doc['collectionCount'].value * 0.2;
+                                return playScore + ratingScore + collectionScore;
+                            `,
+                            lang: 'painless'
+                        },
+                        order: 'desc'
+                    }
+                });
+            }
+
+            // 添加次要排序条件
+            sort.push({id: {order: 'asc'}});
+
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {
+                        bool: {
+                            must: must,
+                            must_not: mustNot
+                        }
+                    },
+                    sort: sort,
+                    from: (page - 1) * pageSize,
+                    size: pageSize,
+                    _source: [
+                        'id',
+                        'name',
+                        'coverUrl',
+                        'status',
+                        'videoCount',
+                        'videoId'
+                    ]
+                }
+            };
+
+            // 获取总数
+            const counts = await elastic.search({
+                index: 'anime_index',
+                body: {query: queryBody.body.query, size: 0}
+            });
+
+            const total = counts.hits.total.value;
+            const animes = await elastic.search(queryBody);
+
+            const rows = await this.formatAnime(animes.hits.hits, userId);
+
+            return {total, rows};
         } catch (error) {
             throw error;
         }

@@ -159,7 +159,7 @@ const AnimeListValidator = parameter => {
         tags: Zod.string({
             invalid_type_error: 'tags 参数错误'
         })
-            .max(255, {
+            .max(25, {
                 message: 'tags 参数错误'
             })
             .array()

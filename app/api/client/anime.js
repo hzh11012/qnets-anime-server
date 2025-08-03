@@ -9,7 +9,8 @@ const {
     AnimeDetailValidator,
     AnimeRecommendValidator,
     AnimeHotRankValidator,
-    AnimeSuggetsValidator
+    AnimeSuggetsValidator,
+    AnimeBangumiValidator
 } = require('@validators/client/anime');
 const res = new Resolve();
 
@@ -102,6 +103,24 @@ router.get(
         });
         ctx.status = 200;
         ctx.body = res.json(list, '搜索建议获取成功');
+    }
+);
+
+// 动漫筛选
+router.get(
+    `/${PATH}/bangumi`,
+    auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const userId = ctx.auth.userId;
+        const permissions = ctx.auth.permissions;
+        const params = AnimeBangumiValidator(ctx.request.query);
+        const data = await AnimeService.bangumi({
+            userId,
+            permissions,
+            ...params
+        });
+        ctx.status = 200;
+        ctx.body = res.json(data, '动漫列表获取成功');
     }
 );
 
