@@ -8,7 +8,8 @@ const {
     AnimeGuessLikeListValidator,
     AnimeDetailValidator,
     AnimeRecommendValidator,
-    AnimeHotRankValidator
+    AnimeHotRankValidator,
+    AnimeSuggetsValidator
 } = require('@validators/client/anime');
 const res = new Resolve();
 
@@ -85,6 +86,22 @@ router.get(
         });
         ctx.status = 200;
         ctx.body = res.json(list, '动漫推荐获取成功');
+    }
+);
+
+// 动漫搜索建议
+router.get(
+    `/${PATH}/suggest`,
+    auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const permissions = ctx.auth.permissions;
+        const params = AnimeSuggetsValidator(ctx.request.query);
+        const list = await AnimeService.suggest({
+            permissions,
+            ...params
+        });
+        ctx.status = 200;
+        ctx.body = res.json(list, '搜索建议获取成功');
     }
 );
 

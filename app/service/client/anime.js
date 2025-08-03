@@ -441,9 +441,6 @@ class AnimeService {
                 body: {
                     query: {
                         bool: {
-                            must: isAllowAnimeType4
-                                ? []
-                                : [{term: {type: {value: 4, boost: 0}}}],
                             must_not: isAllowAnimeType4
                                 ? []
                                 : [{term: {type: 4}}]
@@ -491,6 +488,105 @@ class AnimeService {
 
             const total = counts.hits.total.value;
             const rows = await this.formatAnime(animes.hits.hits, userId);
+
+            return {rows, total};
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * @tital 获取动漫搜索建议
+     * @param {string} keyword 搜索词
+     * @param {string[]} permissions 当前用户权限
+     */
+    static async suggest({keyword, permissions}) {
+        try {
+            // 是否允许查询里番
+            const isAllowAnimeType4 = [
+                ADMIN,
+                ANIEM_TYPE_4_PERMISSION.permission
+            ].some(p => permissions.includes(p));
+
+            // 检查输入是否是纯拼音（不包含中文）
+            const isPinyinOnly = !/[\u4e00-\u9fa5]/.test(keyword);
+
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {
+                        bool: {
+                            must: [
+                                {
+                                    bool: {
+                                        should: [
+                                            // 名称匹配
+                                            {
+                                                match: {
+                                                    name: {
+                                                        query: keyword,
+                                                        operator: 'and',
+                                                        boost: isPinyinOnly
+                                                            ? 1.0
+                                                            : 2.0
+                                                    }
+                                                }
+                                            },
+                                            // 拼音全拼匹配
+                                            {
+                                                match: {
+                                                    'name.pinyin': {
+                                                        query: keyword,
+                                                        operator: 'and',
+                                                        boost: 1.5
+                                                    }
+                                                }
+                                            },
+                                            // 首字母缩写匹配 - 使用 match_phrase_prefix
+                                            {
+                                                match_phrase_prefix: {
+                                                    'name.initials': {
+                                                        query: keyword,
+                                                        boost: 1.0
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        minimum_should_match: 1
+                                    }
+                                }
+                            ],
+                            must_not: isAllowAnimeType4
+                                ? []
+                                : [{term: {type: 4}}] // 如果是纯拼音，增加拼音字段的权重
+                        }
+                    },
+                    highlight: {
+                        fields: {
+                            name: {type: 'plain'}
+                        },
+                        pre_tags: ['<em>'],
+                        post_tags: ['</em>']
+                    },
+                    size: 10,
+                    _source: ['name']
+                }
+            };
+
+            // 获取数据
+            const suggests = await elastic.search(queryBody);
+
+            const rows = suggests.hits.hits.map(hit => {
+                const name = hit.highlight?.name
+                    ? hit.highlight.name[0]
+                    : hit._source.name;
+
+                return {
+                    name: hit._source.name,
+                    highlightName: name
+                };
+            });
+            const total = rows.length;
 
             return {rows, total};
         } catch (error) {

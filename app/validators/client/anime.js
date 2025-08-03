@@ -60,10 +60,23 @@ const AnimeHotRankValidator = parameter => {
     return validate(schema, parameter);
 };
 
+const AnimeSuggetsValidator = parameter => {
+    const schema = Zod.object({
+        keyword: Zod.string({
+            required_error: 'keyword 不能为空',
+            invalid_type_error: 'keyword 类型错误'
+        })
+            .max(255, 'keyword 长度不能超过255')
+            .min(1, 'keyword 不能为空')
+    });
+    return validate(schema, parameter);
+};
+
 module.exports = {
     AnimeOptionValidator,
     AnimeGuessLikeListValidator,
     AnimeDetailValidator,
     AnimeHotRankValidator,
-    AnimeRecommendValidator: commonIdValidator
+    AnimeRecommendValidator: commonIdValidator,
+    AnimeSuggetsValidator
 };
