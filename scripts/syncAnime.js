@@ -7,6 +7,54 @@ const cron = require('node-cron');
 const elastic = require('@core/es');
 const prisma = require('@core/prisma');
 
+// 使用scroll API获取所有ES文档ID
+async function getAllEsAnimeIds() {
+    const esAnimeIds = [];
+
+    try {
+        // 初始化scroll搜索
+        const initialResponse = await elastic.search({
+            index: 'anime_index',
+            scroll: '5m', // 设置scroll保持时间为5分钟
+            body: {
+                query: {match_all: {}},
+                size: 1000, // 每批获取1000个文档
+                _source: false // 只获取ID，不获取文档内容
+            }
+        });
+
+        let scrollId = initialResponse._scroll_id;
+        let hits = initialResponse.hits.hits;
+
+        // 收集第一批结果
+        hits.forEach(hit => esAnimeIds.push(hit._id));
+
+        // 继续scroll直到没有更多结果
+        while (hits.length > 0) {
+            const scrollResponse = await elastic.scroll({
+                scroll_id: scrollId,
+                scroll: '5m'
+            });
+
+            hits = scrollResponse.hits.hits;
+            hits.forEach(hit => esAnimeIds.push(hit._id));
+        }
+
+        // 清理scroll上下文
+        await elastic.clearScroll({
+            scroll_id: scrollId
+        });
+
+        console.log(
+            `[${new Date().toISOString()}] 从ES获取到 ${esAnimeIds.length} 个动漫ID`
+        );
+        return esAnimeIds;
+    } catch (error) {
+        console.error(`[${new Date().toISOString()}] 获取ES动漫ID失败:`, error);
+        throw error;
+    }
+}
+
 cron.schedule('*/15 * * * *', async () => {
     console.log(`[${new Date().toISOString()}] 开始同步ES动漫数据...`);
 
@@ -25,9 +73,32 @@ cron.schedule('*/15 * * * *', async () => {
             }
         });
 
-        const body = animes.flatMap(anime => [
-            {index: {_index: 'anime_index', _id: anime.id}},
-            {
+        // 获取数据库中所有动漫的ID
+        const dbAnimeIds = animes.map(anime => anime.id);
+
+        // 使用scroll API获取ES中所有动漫的ID
+        const esAnimeIds = await getAllEsAnimeIds();
+
+        // 找出需要从ES中删除的动漫ID（在ES中存在但在数据库中不存在）
+        const idsToDelete = esAnimeIds.filter(id => !dbAnimeIds.includes(id));
+
+        // 构建批量操作体
+        const body = [];
+
+        // 添加删除操作
+        if (idsToDelete.length > 0) {
+            console.log(
+                `[${new Date().toISOString()}] 需要删除 ${idsToDelete.length} 个动漫文档`
+            );
+            idsToDelete.forEach(id => {
+                body.push({delete: {_index: 'anime_index', _id: id}});
+            });
+        }
+
+        // 添加更新/插入操作
+        animes.forEach(anime => {
+            body.push({index: {_index: 'anime_index', _id: anime.id}});
+            body.push({
                 id: anime.id,
                 seriesId: anime.animeSeriesId,
                 name: `${anime.name} ${anime.seasonName}`.trim(),
@@ -61,18 +132,27 @@ cron.schedule('*/15 * * * *', async () => {
                 ),
                 videoCount: anime.videos.length,
                 videoId: anime.videos[0]?.id || undefined
+            });
+        });
+
+        if (body.length > 0) {
+            const bulkResponse = await elastic.bulk({refresh: true, body});
+
+            if (bulkResponse.errors) {
+                const errors = bulkResponse.items.filter(
+                    item => item.index?.error || item.delete?.error
+                );
+                console.error(
+                    `[${new Date().toISOString()}] ES动漫数据同步失败：`,
+                    errors
+                );
+            } else {
+                const deletedCount = idsToDelete.length;
+                const updatedCount = animes.length;
+                console.log(
+                    `[${new Date().toISOString()}] ES动漫数据同步完成 - 删除: ${deletedCount}, 更新/插入: ${updatedCount}`
+                );
             }
-        ]);
-
-        const bulkResponse = await elastic.bulk({refresh: true, body});
-
-        if (bulkResponse.errors) {
-            console.error(
-                `[${new Date().toISOString()}] ES动漫数据同步失败：`,
-                bulkResponse.items.filter(item => item.index.error)
-            );
-        } else {
-            console.log(`[${new Date().toISOString()}] ES动漫数据同步完成`);
         }
     } catch (error) {
         console.error(

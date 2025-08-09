@@ -124,6 +124,30 @@ const AnimeBangumiValidator = parameter => {
     return validate(schema, parameter);
 };
 
+const AnimeSearchValidator = parameter => {
+    const schema = Zod.object({
+        page: Zod.number({
+            invalid_type_error: 'page 类型错误'
+        })
+            .int('page 必须为整数')
+            .min(1, 'page 最小为1')
+            .optional(),
+        pageSize: Zod.number({
+            invalid_type_error: 'pageSize 类型错误'
+        })
+            .int('pageSize 必须为整数')
+            .min(1, 'pageSize 最小为1')
+            .optional(),
+        keyword: Zod.string({
+            required_error: 'keyword 不能为空',
+            invalid_type_error: 'keyword 类型错误'
+        })
+            .max(255, 'keyword 长度不能超过255')
+            .min(1, 'keyword 不能为空')
+    });
+    return validate(schema, parameter);
+};
+
 module.exports = {
     AnimeOptionValidator,
     AnimeGuessLikeListValidator,
@@ -131,5 +155,6 @@ module.exports = {
     AnimeHotRankValidator,
     AnimeRecommendValidator: commonIdValidator,
     AnimeSuggetsValidator,
-    AnimeBangumiValidator
+    AnimeBangumiValidator,
+    AnimeSearchValidator
 };

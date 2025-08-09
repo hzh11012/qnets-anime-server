@@ -5,8 +5,11 @@ class AnimeTopicDao {
         return await prisma.animeTopic.delete({where: {id}});
     }
 
-    static async findById(id) {
-        return await prisma.animeTopic.findUnique({where: {id}});
+    static async findById(id, where, select) {
+        return await prisma.animeTopic.findUnique({
+            where: {id, ...where},
+            select
+        });
     }
 
     static async create(data) {

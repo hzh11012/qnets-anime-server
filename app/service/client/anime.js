@@ -779,6 +779,184 @@ class AnimeService {
     }
 
     /**
+     * @title 获取动漫查询结果
+     * @param {string} userId 当前用户ID
+     * @param {string[]} permissions 当前用户权限
+     * @param {number} page - 页码 [可选]
+     * @param {number} pageSize - 每页数量 [可选]
+     * @param {string} keyword 搜索关键词
+     */
+    static async search({
+        userId,
+        permissions,
+        page = 1,
+        pageSize = 10,
+        keyword
+    }) {
+        try {
+            // 是否允许查询里番
+            const isAllowAnimeType4 = [
+                ADMIN,
+                ANIEM_TYPE_4_PERMISSION.permission
+            ].some(p => permissions.includes(p));
+
+            // 检查输入是否是纯拼音（不包含中文）
+            const isPinyinOnly = !/[\u4e00-\u9fa5]/.test(keyword);
+
+            const queryBody = {
+                index: 'anime_index',
+                body: {
+                    query: {
+                        bool: {
+                            must: [
+                                {
+                                    bool: {
+                                        should: [
+                                            // 名称匹配
+                                            {
+                                                match: {
+                                                    name: {
+                                                        query: keyword,
+                                                        operator: 'and',
+                                                        boost: isPinyinOnly
+                                                            ? 1.0
+                                                            : 2.0
+                                                    }
+                                                }
+                                            },
+                                            // 拼音全拼匹配
+                                            {
+                                                match: {
+                                                    'name.pinyin': {
+                                                        query: keyword,
+                                                        operator: 'and',
+                                                        boost: 1.5
+                                                    }
+                                                }
+                                            },
+                                            // 首字母缩写匹配 - 使用 match_phrase_prefix
+                                            {
+                                                match_phrase_prefix: {
+                                                    'name.initials': {
+                                                        query: keyword,
+                                                        boost: 1.0
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        minimum_should_match: 1
+                                    }
+                                }
+                            ],
+                            must_not: isAllowAnimeType4
+                                ? []
+                                : [{term: {type: 4}}] // 如果是纯拼音，增加拼音字段的权重
+                        }
+                    },
+                    highlight: {
+                        fields: {
+                            name: {type: 'plain'}
+                        },
+                        pre_tags: ['<em>'],
+                        post_tags: ['</em>']
+                    },
+                    from: (page - 1) * pageSize,
+                    size: pageSize,
+                    _source: [
+                        'id',
+                        'name',
+                        'description',
+                        'coverUrl',
+                        'status',
+                        'type',
+                        'year',
+                        'month',
+                        'director',
+                        'cv',
+                        'tags',
+                        'averageRating',
+                        'ratingCount',
+                        'videoCount',
+                        'videoId'
+                    ]
+                }
+            };
+
+            const counts = await elastic.search({
+                index: 'anime_index',
+                body: {query: queryBody.body.query, size: 0}
+            });
+
+            const animes = await elastic.search(queryBody);
+            const total = counts.hits.total.value;
+            const rows = await this.formatAnimeWithVideos(
+                animes.hits.hits,
+                userId
+            );
+
+            return {total, rows};
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * @title 格式化es的动漫 + 视频
+     */
+    static async formatAnimeWithVideos(list, userId) {
+        if (!list.length) return [];
+
+        // 获取用户观看历史（用于确定videoId）
+        const userHistories = await VideoHistoryDao.findByUserId(userId);
+        const userHistoryMap = new Map();
+        userHistories.forEach(history => {
+            userHistoryMap.set(history.animeId, history.videoId);
+        });
+
+        // 获取所有动漫ID
+        const animeIds = list.map(hit => hit._source.id);
+
+        // 批量获取所有动漫的视频信息
+        const videosByAnime = await VideoDao.list({
+            where: {animeId: {in: animeIds}},
+            select: {id: true, episode: true, animeId: true},
+            orderBy: {episode: 'asc'}
+        });
+
+        // 按动漫ID分组视频
+        const videoMap = new Map();
+        videosByAnime.rows.forEach(video => {
+            if (!videoMap.has(video.animeId)) {
+                videoMap.set(video.animeId, []);
+            }
+            videoMap.get(video.animeId).push({
+                id: video.id,
+                episode: video.episode
+            });
+        });
+
+        // 处理ES返回的动漫数据
+        const data = list.map(hit => {
+            const anime = hit._source;
+
+            let videoId = anime.videoId;
+            if (userHistoryMap.has(anime.id)) {
+                videoId = userHistoryMap.get(anime.id);
+            }
+
+            const videos = videoMap.get(anime.id) || [];
+
+            return {
+                ...anime,
+                videoId: videoId,
+                videos: videos
+            };
+        });
+
+        return data;
+    }
+
+    /**
      * @title 格式化es的动漫
      */
     static async formatAnime(list, userId) {

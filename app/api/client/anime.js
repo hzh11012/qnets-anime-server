@@ -10,7 +10,8 @@ const {
     AnimeRecommendValidator,
     AnimeHotRankValidator,
     AnimeSuggetsValidator,
-    AnimeBangumiValidator
+    AnimeBangumiValidator,
+    AnimeSearchValidator
 } = require('@validators/client/anime');
 const res = new Resolve();
 
@@ -115,6 +116,24 @@ router.get(
         const permissions = ctx.auth.permissions;
         const params = AnimeBangumiValidator(ctx.request.query);
         const data = await AnimeService.bangumi({
+            userId,
+            permissions,
+            ...params
+        });
+        ctx.status = 200;
+        ctx.body = res.json(data, '动漫列表获取成功');
+    }
+);
+
+// 动漫查询
+router.get(
+    `/${PATH}/search`,
+    auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const userId = ctx.auth.userId;
+        const permissions = ctx.auth.permissions;
+        const params = AnimeSearchValidator(ctx.request.query);
+        const data = await AnimeService.search({
             userId,
             permissions,
             ...params
