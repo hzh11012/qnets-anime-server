@@ -7,7 +7,7 @@ const {
 } = require('@core/http-exception');
 const {got} = require('got-cjs');
 const redis = require('@core/redis');
-const {parseTime} = require('@core/utils');
+const {parseTime, random} = require('@core/utils');
 
 const PERMISSION_CACHE_TTL = parseTime('1d') / 1000;
 
@@ -28,7 +28,7 @@ const verify = async token => {
             return [permissions, email, userId];
         }
 
-        const user = await prisma.user.findUnique({
+        let user = await prisma.user.findUnique({
             where: {email},
             include: {
                 roles: {
@@ -42,9 +42,24 @@ const verify = async token => {
                 }
             }
         });
+
+        if (!user) {
+            const avatar = DICEBEAR_HOST
+                ? `/avatar?radius=50&size=64&seed=${email}`
+                : null;
+            // 创建一个封禁的账户
+            user = await prisma.user.create({
+                data: {
+                    email,
+                    nickname: `用户${random(6)}`,
+                    avatar,
+                    status: 0
+                }
+            });
+        }
         if (!user) throw new NotFound('用户不存在');
 
-        if (user.status === 0) throw new NotFound('用户已封禁，请联系管理员');
+        if (user.status === 0) throw new Forbidden('用户已封禁，请联系管理员');
 
         const permissions = user.roles.flatMap(role =>
             role.permissions.map(p => p.permission)

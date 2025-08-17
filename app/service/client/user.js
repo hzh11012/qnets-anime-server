@@ -23,6 +23,22 @@ class UserService {
             throw error;
         }
     }
+
+    /**
+     * @title 用户编辑
+     * @param {string} email 当前用户邮箱
+     * @param {string} nickname 用户昵称
+     */
+    static async edit({email, nickname}) {
+        try {
+            const existing = await UserDao.findByEmail(email);
+            if (!existing) throw new NotFound('用户不存在');
+
+            return await UserDao.updateByEmail(email, {nickname});
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = UserService;

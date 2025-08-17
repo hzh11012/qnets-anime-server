@@ -4,7 +4,8 @@ const VideoHistoryService = require('@service/client/video-history');
 const auth = require('@middleware/auth');
 const {PREFIX, CLIENT_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {
-    VideoHistoryCreatValidator
+    VideoHistoryCreatValidator,
+    VideoHistoryListValidator
 } = require('@validators/client/video-history');
 const res = new Resolve();
 
@@ -26,6 +27,24 @@ router.post(
         await VideoHistoryService.create({userId, ...params});
         ctx.status = 201;
         ctx.body = res.success('保存历史记录成功');
+    }
+);
+
+// 历史记录列表
+router.get(
+    `/${PATH}`,
+    auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const permissions = ctx.auth.permissions;
+        const userId = ctx.auth.userId;
+        const params = VideoHistoryListValidator(ctx.request.query);
+        const data = await VideoHistoryService.list({
+            id: userId,
+            permissions,
+            ...params
+        });
+        ctx.status = 200;
+        ctx.body = res.json(data, '历史记录获取成功');
     }
 );
 

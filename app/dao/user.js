@@ -5,6 +5,10 @@ class UserDao {
         return await prisma.user.findUnique({where: {id}});
     }
 
+    static async findByEmail(email) {
+        return await prisma.user.findUnique({where: {email}});
+    }
+
     static async findByEmailWithRelations(email) {
         return await prisma.user.findUnique({
             where: {email},
@@ -35,6 +39,13 @@ class UserDao {
     static async update(id, data) {
         return await prisma.user.update({
             where: {id},
+            data
+        });
+    }
+
+    static async updateByEmail(email, data) {
+        return await prisma.user.update({
+            where: {email},
             data
         });
     }

@@ -565,7 +565,7 @@ class AnimeService {
                         fields: {
                             name: {type: 'plain'}
                         },
-                        pre_tags: ['<em>'],
+                        pre_tags: ['<em class="keyword">'],
                         post_tags: ['</em>']
                     },
                     size: 10,
@@ -857,7 +857,7 @@ class AnimeService {
                         fields: {
                             name: {type: 'plain'}
                         },
-                        pre_tags: ['<em>'],
+                        pre_tags: ['<em class="keyword">'],
                         post_tags: ['</em>']
                     },
                     from: (page - 1) * pageSize,
@@ -948,6 +948,9 @@ class AnimeService {
 
             return {
                 ...anime,
+                highlightName: hit.highlight?.name
+                    ? hit.highlight.name[0]
+                    : anime.name,
                 videoId: videoId,
                 videos: videos
             };

@@ -5,7 +5,8 @@ const auth = require('@middleware/auth');
 const {PREFIX, CLIENT_PREFIX, ADMIN, PERM} = require('@core/consts');
 const {
     AnimeCollectionCreateValidator,
-    AnimeCollectionDeleteValidator
+    AnimeCollectionDeleteValidator,
+    AnimeCollectionListValidator
 } = require('@validators/client/anime-collection');
 const res = new Resolve();
 
@@ -28,6 +29,24 @@ router.get(
         });
         ctx.status = 200;
         ctx.body = res.json(options, '动漫追番获取成功');
+    }
+);
+
+// 我的追番
+router.get(
+    `/${PATH}`,
+    auth([ADMIN, `${CLIENT_PREFIX}:${PATH}:${PERM.VIEW}`]),
+    async ctx => {
+        const permissions = ctx.auth.permissions;
+        const userId = ctx.auth.userId;
+        const params = AnimeCollectionListValidator(ctx.request.query);
+        const data = await AnimeCollectionService.list({
+            id: userId,
+            permissions,
+            ...params
+        });
+        ctx.status = 200;
+        ctx.body = res.json(data, '我的追番获取成功');
     }
 );
 

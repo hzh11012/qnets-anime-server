@@ -31,7 +31,7 @@ class VideoHistoryDao {
         return await prisma.videoHistory.findMany({where: {userId}});
     }
 
-    static async list({where, skip, take, orderBy, include, omit}) {
+    static async list({where, skip, take, orderBy, include, select, omit}) {
         const [total, rows] = await Promise.all([
             prisma.videoHistory.count({where}),
             prisma.videoHistory.findMany({
@@ -40,6 +40,7 @@ class VideoHistoryDao {
                 take,
                 orderBy,
                 include,
+                select,
                 omit
             })
         ]);

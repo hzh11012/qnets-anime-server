@@ -26,7 +26,7 @@ class AnimeGuideService {
                 ANIEM_TYPE_4_PERMISSION.permission
             ].some(p => permissions.includes(p));
 
-            const {rows: guides} = await AnimeGuideDao.list({
+            const {rows: guides, total} = await AnimeGuideDao.list({
                 skip: (page - 1) * pageSize,
                 take: pageSize,
                 orderBy: {updateTime: 'asc'},
@@ -50,7 +50,23 @@ class AnimeGuideService {
             const queryBody = {
                 index: 'anime_index',
                 body: {
-                    query: {bool: {must: [{terms: {id: animeIds}}]}}
+                    query: {bool: {must: [{terms: {id: animeIds}}]}},
+                    sort: [
+                        {
+                            _script: {
+                                type: 'number',
+                                script: {
+                                    source: `
+                                        def order = ['${animeIds.join("','")}'];
+                                        def index = order.indexOf(doc['id'].value);
+                                        return index >= 0 ? index : 999;
+                                    `,
+                                    lang: 'painless'
+                                },
+                                order: 'asc'
+                            }
+                        }
+                    ]
                 },
                 size: animeIds.length,
                 _source: [
@@ -78,8 +94,6 @@ class AnimeGuideService {
             userHistories.forEach(history => {
                 userHistoryMap.set(history.animeId, history.videoId);
             });
-
-            const total = animes.hits.hits.length;
 
             const rows = animes.hits.hits.map(hit => {
                 const anime = hit._source;
