@@ -128,6 +128,7 @@ class AnimeCollectionService {
                 take: pageSize,
                 orderBy: {createdAt: 'desc'},
                 where: {
+                    userId: id,
                     anime: isAllowAnimeType4 ? undefined : {type: {not: 4}}
                 },
                 select: {animeId: true, createdAt: true}

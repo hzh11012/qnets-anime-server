@@ -20,6 +20,7 @@ class AnimeTopicService {
             const params = {
                 take: 5,
                 orderBy: {updatedAt: 'desc'},
+                where: {status: 1},
                 select: {
                     id: true,
                     name: true,
@@ -64,6 +65,7 @@ class AnimeTopicService {
             const params = {
                 skip: (page - 1) * pageSize,
                 take: pageSize,
+                where: {status: 1},
                 orderBy: {updatedAt: 'desc'},
                 select: {
                     id: true,

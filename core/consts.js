@@ -493,6 +493,11 @@ const CLIENT_API_PERMISSIONS = [
         system: 1
     },
     {
+        name: '前台接口：新番导视查询',
+        permission: `${CLIENT_PREFIX}:anime-guides:${PERM.VIEW}`,
+        system: 1
+    },
+    {
         name: '前台接口：动漫系列查询',
         permission: `${CLIENT_PREFIX}:anime-series:${PERM.VIEW}`,
         system: 1
@@ -541,7 +546,7 @@ const CLIENT_API_PERMISSIONS = [
         system: 1
     },
     {
-        name: '前台接口：系统公告',
+        name: '前台接口：系统公告查询',
         permission: `${CLIENT_PREFIX}:notices:${PERM.VIEW}`,
         system: 1
     },
@@ -558,6 +563,11 @@ const CLIENT_API_PERMISSIONS = [
     {
         name: '前台接口：保存历史记录',
         permission: `${CLIENT_PREFIX}:video-histories:${PERM.CREATE}`,
+        system: 1
+    },
+    {
+        name: '前台接口：历史记录查询',
+        permission: `${CLIENT_PREFIX}:video-histories:${PERM.VIEW}`,
         system: 1
     }
 ];

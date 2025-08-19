@@ -44,9 +44,8 @@ const verify = async token => {
         });
 
         if (!user) {
-            const avatar = DICEBEAR_HOST
-                ? `/avatar?radius=50&size=64&seed=${email}`
-                : null;
+            const avatar = `/avatar?radius=50&size=64&seed=${email}`;
+            
             // 创建一个封禁的账户
             user = await prisma.user.create({
                 data: {
