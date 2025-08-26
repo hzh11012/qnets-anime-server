@@ -63,7 +63,7 @@ class AnimeSeriesService {
                 where: {[type]: {contains: keyword}},
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
-                    animes: {select: {name: true}}
+                    animes: {select: {name: true, seasonName: true}}
                 },
                 omit: {updatedAt: true}
             };

@@ -60,7 +60,10 @@ class DanmakuService {
                 include: {
                     user: {select: {nickname: true, avatar: true}},
                     video: {
-                        select: {episode: true, anime: {select: {name: true}}}
+                        select: {
+                            episode: true,
+                            anime: {select: {name: true, seasonName: true}}
+                        }
                     }
                 },
                 omit: {updatedAt: true, userId: true, videoId: true}

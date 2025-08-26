@@ -17,13 +17,12 @@ const VideoCreateValidator = parameter => {
             .max(255, 'animeId 长度不能超过255')
             .min(1, 'animeId 不能为空'),
         title: Zod.string({
-            required_error: 'title 不能为空',
             invalid_type_error: 'title 类型错误'
         })
             .max(50, {
                 message: 'title 长度不能超过50'
             })
-            .min(1, 'title 不能为空'),
+            .optional(),
         url: Zod.string({
             required_error: 'url 不能为空',
             invalid_type_error: 'url 类型错误'

@@ -54,7 +54,7 @@ class VideoHistoryService {
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
                     user: {select: {nickname: true, avatar: true}},
-                    anime: {select: {name: true}},
+                    anime: {select: {name: true, seasonName: true}},
                     video: {select: {episode: true}}
                 },
                 omit: {

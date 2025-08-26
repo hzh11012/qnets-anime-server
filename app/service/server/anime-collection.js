@@ -53,7 +53,9 @@ class AnimeCollectionService {
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
                     user: {select: {nickname: true, email: true}},
-                    anime: {select: {name: true, coverUrl: true}}
+                    anime: {
+                        select: {name: true, seasonName: true, coverUrl: true}
+                    }
                 },
                 omit: {updatedAt: true}
             };

@@ -3,7 +3,7 @@ model Video {
     /// 视频ID
     id        String @id @default(ulid())
     /// 视频标题
-    title     String @db.VarChar(50)
+    title     String? @db.VarChar(50)
     /// 集数编号
     episode   Int    @db.UnsignedInt
     /// 视频链接

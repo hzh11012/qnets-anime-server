@@ -80,7 +80,11 @@ class VideoService {
                 take: pageSize,
                 where,
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
-                include: {anime: {select: {name: true, coverUrl: true}}},
+                include: {
+                    anime: {
+                        select: {name: true, seasonName: true, coverUrl: true}
+                    }
+                },
                 omit: {updatedAt: true}
             };
 

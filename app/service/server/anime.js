@@ -222,16 +222,19 @@ class AnimeService {
     static async options() {
         try {
             const params = {
-                select: {id: true, name: true},
+                select: {id: true, name: true, seasonName: true},
                 orderBy: {createdAt: 'desc'}
             };
 
             const result = await AnimeDao.list(params);
 
-            return result.rows.map(item => ({
-                label: item.name,
-                value: item.id
-            }));
+            return result.rows.map(item => {
+                const title = (item.name + ' ' + item.seasonName).trim();
+                return {
+                    label: title,
+                    value: item.id
+                };
+            });
         } catch (error) {
             throw error;
         }

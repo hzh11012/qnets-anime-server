@@ -56,7 +56,8 @@ const INIT_ANIME_TAGS = [
     {name: '偶像'},
     {name: '乙女'},
     {name: '职场'},
-    {name: '古风'}
+    {name: '古风'},
+    {name: 'R18'}
 ];
 
 const USER_PERMISSIONS = [

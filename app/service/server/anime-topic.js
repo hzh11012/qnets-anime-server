@@ -85,7 +85,9 @@ class AnimeTopicService {
                     status: status.length ? {in: status} : undefined
                 },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
-                include: {animes: {select: {id: true, name: true}}},
+                include: {
+                    animes: {select: {id: true, name: true, seasonName: true}}
+                },
                 omit: {updatedAt: true}
             };
 

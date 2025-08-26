@@ -67,7 +67,12 @@ class AnimeBannerService {
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
                     anime: {
-                        select: {name: true, description: true, bannerUrl: true}
+                        select: {
+                            name: true,
+                            seasonName: true,
+                            description: true,
+                            bannerUrl: true
+                        }
                     }
                 },
                 omit: {updatedAt: true}

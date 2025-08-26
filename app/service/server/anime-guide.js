@@ -84,6 +84,7 @@ class AnimeGuideService {
                     anime: {
                         select: {
                             name: true,
+                            seasonName: true,
                             coverUrl: true,
                             status: true,
                             animeTags: {select: {id: true, name: true}}
