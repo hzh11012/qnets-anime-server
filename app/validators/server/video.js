@@ -48,7 +48,7 @@ const VideoCreateValidator = parameter => {
 const VideoListValidator = parameter => {
     const schema = Zod.object({
         ...commonList,
-        type: Zod.enum(['name', 'title', 'url'], {
+        type: Zod.enum(['name', 'url'], {
             message: 'type 参数错误'
         }).optional(),
         orderBy: Zod.enum(['createdAt', 'updatedAt', 'episode'], {
