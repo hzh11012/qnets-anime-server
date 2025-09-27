@@ -1,15 +1,15 @@
 /// 视频模型
 model Video {
     /// 视频ID
-    id        String @id @default(ulid())
+    id        String  @id @default(ulid())
     /// 视频标题
     title     String? @db.VarChar(50)
     /// 集数编号
-    episode   Int    @db.UnsignedInt
+    episode   Int     @db.UnsignedInt
     /// 视频链接
     url       String
     /// 视频播放次数
-    playCount Int    @default(0) @db.UnsignedInt
+    playCount Int     @default(0) @db.UnsignedInt
 
     /// 创建时间
     createdAt DateTime @default(now())
@@ -36,48 +36,46 @@ model Video {
 /// 视频评论模型
 model VideoComment {
     /// 视频评论ID
-    id         String @id @default(ulid())
+    id        String   @id @default(ulid())
     /// 视频评论内容
-    content    String @db.VarChar(2500)
+    content   String   @db.VarChar(2500)
     /// 点赞数
-    likeCount  Int    @default(0) @db.UnsignedInt
-    /// 回复数
-    replyCount Int    @default(0) @db.UnsignedInt
-
+    likeCount Int      @default(0) @db.UnsignedInt
+    /// 视频评论状态 0-待审核 1-审核通过
+    status    Int      @default(0) @db.UnsignedTinyInt
     /// 创建时间
     createdAt DateTime @default(now())
     /// 更新时间
     updatedAt DateTime @updatedAt
 
     /// n-1 视频
-    video            Video              @relation(fields: [videoId], references: [id], onDelete: Cascade)
+    video    Video          @relation(fields: [videoId], references: [id], onDelete: Cascade)
     /// 视频ID
-    videoId          String
+    videoId  String
     /// n-1 用户
-    user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
     /// 用户ID
-    userId           String
+    userId   String
     /// 1-n 子评论
-    replies          VideoComment[]     @relation("CommentReplies")
+    replies  VideoComment[] @relation("CommentReplies")
     /// n-1 父评论
-    parent           VideoComment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+    parent   VideoComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
     /// 父视频评论ID
-    parentId         String?
+    parentId String?
+
     VideoCommentLike VideoCommentLike[]
 
     @@index([videoId])
     @@index([userId])
     @@index([parentId])
+    @@index([status])
     @@index([createdAt])
-    @@index([likeCount])
-    @@index([replyCount])
 }
 
 /// 视频评论点赞模型
 model VideoCommentLike {
     /// 视频评论点赞ID
-    id String @id @default(ulid())
-
+    id        String   @id @default(ulid())
     /// 创建时间
     createdAt DateTime @default(now())
 

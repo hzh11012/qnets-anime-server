@@ -28,6 +28,7 @@ class VideoCommentService {
      * @param {number} pageSize - 每页数量 [可选]
      * @param {string} keyword - 搜索关键词 [可选]
      * @param {string} type - 搜索类型 [可选]
+     * @param {number[]} status - 账号状态 0-待审核 1-启用 [可选]
      * @param {string} order - 排序 [可选]
      * @param {string} orderBy - 排序字段 [可选]
      */
@@ -36,6 +37,7 @@ class VideoCommentService {
         pageSize = 10,
         keyword,
         type = 'content',
+        status = [],
         order = 'DESC',
         orderBy = 'createdAt'
     }) {
@@ -58,7 +60,10 @@ class VideoCommentService {
             const params = {
                 skip: (page - 1) * pageSize,
                 take: pageSize,
-                where,
+                where: {
+                    ...where,
+                    status: status.length ? {in: status} : undefined
+                },
                 orderBy: {[orderBy]: order.toLocaleLowerCase()},
                 include: {
                     user: {select: {nickname: true, avatar: true}},
@@ -84,15 +89,16 @@ class VideoCommentService {
     /**
      * @title 视频评论编辑
      * @param {string} id - 视频评论ID
+     * @param {number} status 视频评论状态
      * @param {string} content - 视频评论内容
      */
-    static async edit({id, content}) {
+    static async edit({id, content, status}) {
         try {
             // 检查视频评论是否存在
             const existing = await VideoCommentDao.findById(id);
             if (!existing) throw new NotFound('视频评论不存在');
 
-            const data = {content};
+            const data = {content, status};
 
             return await VideoCommentDao.update(id, data);
         } catch (error) {

@@ -12,12 +12,15 @@ const VideoCommentListValidator = parameter => {
         type: Zod.enum(['content', 'nickname', 'animeName'], {
             message: 'type 参数错误'
         }).optional(),
-        orderBy: Zod.enum(
-            ['createdAt', 'updatedAt', 'likeCount', 'replyCount'],
-            {
-                message: 'orderBy 参数错误'
-            }
-        ).optional()
+        status: Zod.string({
+            invalid_type_error: 'status 类型错误'
+        })
+            .array()
+            .transform(arr => arr.map(val => parseInt(val, 10)))
+            .optional(),
+        orderBy: Zod.enum(['createdAt', 'updatedAt', 'likeCount'], {
+            message: 'orderBy 参数错误'
+        }).optional()
     });
     return validate(schema, parameter);
 };
@@ -30,6 +33,11 @@ const VideoCommentEditValidator = parameter => {
             .max(2500, {
                 message: 'content 长度不能超过2500'
             })
+            .optional(),
+        status: Zod.enum(['0', '1'], {
+            message: 'status 参数错误'
+        })
+            .transform(val => parseInt(val, 10))
             .optional()
     };
 
